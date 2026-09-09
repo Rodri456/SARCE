@@ -2,6 +2,8 @@ import express from "express";
 
 import usuarioRoutes from './routes/usuario.js';
 
+import { errorHandler } from "./middlewares/errorHandler.js";
+
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -14,6 +16,8 @@ app.get("/", (req, res) => {
 });
 
 app.use('/usuarios', usuarioRoutes);
+
+app.use(errorHandler);
 
 app.listen(process.env.PORT || 3000, () => {
     console.log('Servidor corriendo en http://localhost:${process.env.PORT || 3000}');
