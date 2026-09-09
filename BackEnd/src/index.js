@@ -1,7 +1,7 @@
 import express from "express";
 
 import usuarioRoutes from './routes/usuario.js';
-
+import gradoRoutes from './routes/grado.js';
 import { errorHandler } from "./middlewares/errorHandler.js";
 
 import dotenv from "dotenv";
