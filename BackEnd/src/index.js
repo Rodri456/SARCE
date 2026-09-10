@@ -16,7 +16,7 @@ app.get("/", (req, res) => {
 });
 
 app.use('/usuarios', usuarioRoutes);
-
+app.use('/grados', gradoRoutes);
 app.use(errorHandler);
 
 app.listen(process.env.PORT || 3000, () => {
