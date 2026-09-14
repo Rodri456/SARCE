@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 
 import usuarioRoutes from './routes/usuario.js';
 import gradoRoutes from './routes/grado.js';
@@ -18,6 +19,7 @@ dotenv.config();
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 
 app.get("/", (req, res) => {

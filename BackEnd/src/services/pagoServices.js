@@ -1,14 +1,14 @@
 import { pool } from '../db.js';
 
 // Consulta base uniendo Pago con Estudiante, Usuario y Grado
+// Se removieron p.metodo_pago y p.fecha_pago, utilizando p.fecha en su lugar.
 const BASE_SELECT = `
     SELECT 
         p.id AS pago_id,
         p.monto,
         p.concepto,
         p.estado,
-        p.metodo_pago,
-        p.fecha_pago,
+        p.fecha,
         p.created_at AS fecha_registro,
         -- Datos del Estudiante
         u.id AS estudiante_id,
@@ -66,19 +66,7 @@ export const getPagosByEstado = async (estado) => {
     const buscar = `%${estado}%`;
     const query = `
         ${BASE_SELECT} 
-        WHERE p.estado ILIKE $1 
-        ORDER BY p.id DESC;
-    `;
-    const result = await pool.query(query, [buscar]);
-    return result.rows;
-};
-
-// Buscar por Método de Pago (ej: 'efectivo', 'transferencia', 'tarjeta')
-export const getPagosByMetodo = async (metodo) => {
-    const buscar = `%${metodo}%`;
-    const query = `
-        ${BASE_SELECT} 
-        WHERE p.metodo_pago ILIKE $1 
+        WHERE p.estado::text ILIKE $1 
         ORDER BY p.id DESC;
     `;
     const result = await pool.query(query, [buscar]);
@@ -101,8 +89,8 @@ export const getPagosByGrado = async (grado) => {
 export const getPagosByRangoFechas = async (fechaInicio, fechaFin) => {
     const query = `
         ${BASE_SELECT} 
-        WHERE DATE(p.fecha_pago) BETWEEN $1 AND $2 
-        ORDER BY p.fecha_pago DESC;
+        WHERE p.fecha BETWEEN $1 AND $2 
+        ORDER BY p.fecha DESC;
     `;
     const result = await pool.query(query, [fechaInicio, fechaFin]);
     return result.rows;
@@ -120,31 +108,30 @@ export const getPagosByRangoMonto = async (min, max) => {
 };
 
 // Crear Pago
-export const postCrearPago = async (estudianteId, monto, concepto, estado = 'completado', metodoPago = 'efectivo', fechaPago = new Date()) => {
+export const postCrearPago = async (estudianteId, monto, concepto, estado = 'completado', fecha = new Date()) => {
     const query = `
-        INSERT INTO pago (estudiante_id, monto, concepto, estado, metodo_pago, fecha_pago)
-        VALUES ($1, $2, $3, $4, $5, $6)
+        INSERT INTO pago (estudiante_id, monto, concepto, estado, fecha)
+        VALUES ($1, $2, $3, $4, $5)
         RETURNING id;
     `;
-    const values = [estudianteId, monto, concepto, estado, metodoPago, fechaPago];
+    const values = [estudianteId, monto, concepto, estado, fecha];
     const result = await pool.query(query, values);
     return await getPagoById(result.rows[0].id);
 };
 
 // Actualizar Pago
-export const actualizarPago = async (id, estudianteId, monto, concepto, estado, metodoPago, fechaPago) => {
+export const actualizarPago = async (id, estudianteId, monto, concepto, estado, fecha) => {
     const query = `
         UPDATE pago
         SET estudiante_id = $1,
             monto = $2,
             concepto = $3,
             estado = $4,
-            metodo_pago = $5,
-            fecha_pago = $6
-        WHERE id = $7
+            fecha = $5
+        WHERE id = $6
         RETURNING id;
     `;
-    const values = [estudianteId, monto, concepto, estado, metodoPago, fechaPago, id];
+    const values = [estudianteId, monto, concepto, estado, fecha, id];
     const result = await pool.query(query, values);
 
     if (result.rowCount === 0) return null;

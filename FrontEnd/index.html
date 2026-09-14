@@ -1,1 +1,425 @@
-//Html para que aparezca en github
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Pagos - Sistema Escolar</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Heroicons para iconos -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans antialiased min-h-screen">
+
+  <!-- Configuración de API URL -->
+  <script>
+    // Cambia esta URL según la dirección y puerto de tu servidor Express
+    const API_URL = 'http://localhost:3000/pagos';
+  </script>
+
+  <!-- Navbar -->
+  <nav class="bg-indigo-700 text-white shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <i class="fa-solid me-2 fa-file-invoice-dollar text-2xl"></i>
+        <h1 class="text-xl font-bold tracking-wide">Módulo de Gestión de Pagos</h1>
+      </div>
+      <button onclick="openModal('create')" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-semibold shadow flex items-center transition">
+        <i class="fa-solid fa-plus mr-2"></i> Nuevo Pago
+      </button>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto px-4 py-8">
+
+    <!-- Tarjetas Informativas / Resumen -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-indigo-500">
+        <p class="text-sm font-semibold text-gray-500 uppercase">Total Registros</p>
+        <p id="totalRegistros" class="text-3xl font-extrabold text-gray-800 mt-2">0</p>
+      </div>
+      <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-green-500">
+        <p class="text-sm font-semibold text-gray-500 uppercase">Monto Total Recaudado</p>
+        <p id="totalMonto" class="text-3xl font-extrabold text-green-600 mt-2">$0.00</p>
+      </div>
+      <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-amber-500">
+        <p class="text-sm font-semibold text-gray-500 uppercase">Pagos Pendientes</p>
+        <p id="totalPendientes" class="text-3xl font-extrabold text-amber-600 mt-2">0</p>
+      </div>
+    </div>
+
+    <!-- Panel de Filtros y Búsquedas -->
+    <div class="bg-white p-6 rounded-xl shadow-md mb-8">
+      <h2 class="text-lg font-bold text-gray-700 mb-4 flex items-center">
+        <i class="fa-solid fa-filter text-indigo-600 mr-2"></i> Filtros de Búsqueda
+      </h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Búsqueda General -->
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Tipo de Filtro por Texto</label>
+          <div class="flex">
+            <select id="tipoFiltroTexto" class="border border-gray-300 rounded-l-lg p-2 text-sm bg-gray-50 border-r-0 focus:outline-none">
+              <option value="estudiante">Estudiante</option>
+              <option value="concepto">Concepto</option>
+              <option value="estado">Estado</option>
+              <option value="grado">Grado</option>
+            </select>
+            <input type="text" id="inputBuscarTexto" placeholder="Buscar..." class="w-full border border-gray-300 p-2 text-sm rounded-r-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          </div>
+        </div>
+
+        <!-- Rango de Fechas -->
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Rango de Fechas</label>
+          <div class="flex space-x-2">
+            <input type="date" id="fechaInicio" class="w-1/2 border border-gray-300 p-2 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <input type="date" id="fechaFin" class="w-1/2 border border-gray-300 p-2 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <button onclick="buscarPorFechas()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 rounded-lg text-sm transition">
+              <i class="fa-solid fa-search"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Rango de Monto -->
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Rango de Monto ($)</label>
+          <div class="flex space-x-2">
+            <input type="number" id="montoMin" placeholder="Mín" class="w-1/2 border border-gray-300 p-2 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <input type="number" id="montoMax" placeholder="Máx" class="w-1/2 border border-gray-300 p-2 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <button onclick="buscarPorMonto()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 rounded-lg text-sm transition">
+              <i class="fa-solid fa-search"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 flex justify-between items-center pt-3 border-t">
+        <button onclick="cargarTodosLosPagos()" class="text-sm text-indigo-600 hover:text-indigo-800 font-semibold flex items-center">
+          <i class="fa-solid fa-rotate mr-1"></i> Restablecer todos los filtros
+        </button>
+      </div>
+    </div>
+
+    <!-- Tabla de Pagos -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-gray-50 border-b text-xs font-semibold text-gray-600 uppercase tracking-wider">
+              <th class="p-4">ID</th>
+              <th class="p-4">Estudiante</th>
+              <th class="p-4">Grado</th>
+              <th class="p-4">Concepto</th>
+              <th class="p-4">Monto</th>
+              <th class="p-4">Fecha</th>
+              <th class="p-4">Estado</th>
+              <th class="p-4 text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaPagosBody" class="divide-y divide-gray-200 text-sm">
+            <!-- Cargado dinámicamente con JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal Formularios (Crear / Editar) -->
+  <div id="pagoModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex justify-center items-center z-50">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative">
+      <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+        <i class="fa-solid fa-xmark text-xl"></i>
+      </button>
+      <h3 id="modalTitle" class="text-xl font-bold text-gray-800 mb-4">Registrar Nuevo Pago</h3>
+
+      <form id="pagoForm" onsubmit="guardarPago(event)">
+        <input type="hidden" id="pagoId">
+
+        <div class="mb-4">
+          <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">ID Estudiante *</label>
+          <input type="number" id="estudianteId" required class="w-full border border-gray-300 p-2 text-sm rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Monto ($) *</label>
+          <input type="number" step="0.01" id="monto" required class="w-full border border-gray-300 p-2 text-sm rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Concepto *</label>
+          <input type="text" id="concepto" required placeholder="Ej: Mensualidad Marzo" class="w-full border border-gray-300 p-2 text-sm rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Estado *</label>
+            <select id="estado" required class="w-full border border-gray-300 p-2 text-sm rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+              <option value="completado">Completado</option>
+              <option value="pendiente">Pendiente</option>
+              <option value="rechazado">Rechazado</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Fecha de Pago *</label>
+            <input type="date" id="fechaPago" required class="w-full border border-gray-300 p-2 text-sm rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Los siguientes campos son pasados si tu controlador/servicio requiere metodoPago opcional -->
+        <div class="mb-4">
+          <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Método de Pago</label>
+          <select id="metodoPago" class="w-full border border-gray-300 p-2 text-sm rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            <option value="Efectivo">Efectivo</option>
+            <option value="Tarjeta">Tarjeta</option>
+            <option value="Transferencia">Transferencia</option>
+          </select>
+        </div>
+
+        <div class="flex justify-end space-x-3 mt-6">
+          <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-lg text-sm text-gray-600 hover:bg-gray-100">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold shadow">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- JavaScript Lógica de Conexión -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      cargarTodosLosPagos();
+      
+      // Listener para el input de texto dinámico
+      document.getElementById('inputBuscarTexto').addEventListener('keyup', (e) => {
+        if (e.key === 'Enter' || e.target.value === '') {
+          buscarPorTexto();
+        }
+      });
+    });
+
+    // Cargar todos los pagos
+    async function cargarTodosLosPagos() {
+      try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
+        renderTabla(data);
+      } catch (err) {
+        console.error("Error al cargar los pagos:", err);
+        alert("Error al conectar con el servidor.");
+      }
+    }
+
+    // Renderizar filas de la tabla
+    function renderTabla(pagos) {
+      const tbody = document.getElementById('tablaPagosBody');
+      tbody.innerHTML = '';
+
+      let totalMonto = 0;
+      let pendientes = 0;
+
+      if (!pagos || pagos.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-gray-500">No se encontraron pagos registrados.</td></tr>`;
+      } else {
+        pagos.forEach(pago => {
+          totalMonto += parseFloat(pago.monto || 0);
+          if (pago.estado?.toLowerCase() === 'pendiente') pendientes++;
+
+          const fechaFormatted = pago.fecha ? new Date(pago.fecha).toISOString().split('T')[0] : 'N/A';
+          
+          let estadoBadge = 'bg-gray-100 text-gray-800';
+          if (pago.estado === 'completado') estadoBadge = 'bg-green-100 text-green-800 border-green-300';
+          else if (pago.estado === 'pendiente') estadoBadge = 'bg-amber-100 text-amber-800 border-amber-300';
+          else if (pago.estado === 'rechazado') estadoBadge = 'bg-red-100 text-red-800 border-red-300';
+
+          tbody.innerHTML += `
+            <tr class="hover:bg-gray-50 transition">
+              <td class="p-4 font-medium text-gray-900">#${pago.pago_id || pago.id}</td>
+              <td class="p-4">
+                <div class="font-semibold text-gray-800">${pago.estudiante_nombre || 'N/A'}</div>
+                <div class="text-xs text-gray-500">${pago.estudiante_correo || ''}</div>
+              </td>
+              <td class="p-4 text-gray-600">${pago.grado_nombre || 'N/A'}</td>
+              <td class="p-4 text-gray-700">${pago.concepto}</td>
+              <td class="p-4 font-semibold text-gray-900">$${parseFloat(pago.monto).toFixed(2)}</td>
+              <td class="p-4 text-gray-600">${fechaFormatted}</td>
+              <td class="p-4">
+                <span class="px-2.5 py-1 text-xs font-semibold rounded-full border ${estadoBadge}">
+                  ${pago.estado}
+                </span>
+              </td>
+              <td class="p-4 text-center space-x-2">
+                <button onclick="prepararEdicion(${pago.pago_id || pago.id})" class="text-indigo-600 hover:text-indigo-900 font-semibold p-1">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+                <button onclick="eliminarPago(${pago.pago_id || pago.id})" class="text-red-600 hover:text-red-900 font-semibold p-1">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          `;
+        });
+      }
+
+      // Actualizar Resumen Dashboard
+      document.getElementById('totalRegistros').innerText = pagos.length;
+      document.getElementById('totalMonto').innerText = `$${totalMonto.toFixed(2)}`;
+      document.getElementById('totalPendientes').innerText = pendientes;
+    }
+
+    // Búsqueda dinámicas por texto
+    async function buscarPorTexto() {
+      const tipo = document.getElementById('tipoFiltroTexto').value;
+      const texto = document.getElementById('inputBuscarTexto').value.trim();
+
+      if (!texto) return cargarTodosLosPagos();
+
+      let endpoint = '';
+      if (tipo === 'estudiante') endpoint = `/buscarPorEstudiante/${texto}`;
+      else if (tipo === 'concepto') endpoint = `/buscarPorConcepto/${texto}`;
+      else if (tipo === 'estado') endpoint = `/buscarPorEstado/${texto}`;
+      else if (tipo === 'grado') endpoint = `/buscarPorGrado/${texto}`;
+
+      try {
+        const response = await fetch(`${API_URL}${endpoint}`);
+        const data = await response.json();
+        renderTabla(data);
+      } catch (err) {
+        console.error("Error en búsqueda:", err);
+      }
+    }
+
+    // Buscar por Fechas
+    async function buscarPorFechas() {
+      const inicio = document.getElementById('fechaInicio').value;
+      const fin = document.getElementById('fechaFin').value;
+
+      if (!inicio || !fin) {
+        alert("Selecciona ambas fechas para filtrar.");
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_URL}/buscarPorFechas?inicio=${inicio}&fin=${fin}`);
+        const data = await response.json();
+        renderTabla(data);
+      } catch (err) {
+        console.error("Error en rango de fechas:", err);
+      }
+    }
+
+    // Buscar por Monto
+    async function buscarPorMonto() {
+      const min = document.getElementById('montoMin').value;
+      const max = document.getElementById('montoMax').value;
+
+      if (min === '' || max === '') {
+        alert("Ingresa tanto el monto mínimo como el máximo.");
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_URL}/buscarPorMonto?min=${min}&max=${max}`);
+        const data = await response.json();
+        renderTabla(data);
+      } catch (err) {
+        console.error("Error en rango de monto:", err);
+      }
+    }
+
+    // Guardar (Crear / Actualizar)
+    async function guardarPago(e) {
+      e.preventDefault();
+
+      const id = document.getElementById('pagoId').value;
+      const payload = {
+        estudianteId: parseInt(document.getElementById('estudianteId').value),
+        monto: parseFloat(document.getElementById('monto').value),
+        concepto: document.getElementById('concepto').value,
+        estado: document.getElementById('estado').value,
+        fechaPago: document.getElementById('fechaPago').value,
+        metodoPago: document.getElementById('metodoPago').value
+      };
+
+      const isEdit = Boolean(id);
+      const url = isEdit ? `${API_URL}/${id}` : API_URL;
+      const method = isEdit ? 'PUT' : 'POST';
+
+      try {
+        const response = await fetch(url, {
+          method: method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+          closeModal();
+          cargarTodosLosPagos();
+        } else {
+          const errData = await response.json();
+          alert(`Error: ${errData.message || 'No se pudo procesar la solicitud'}`);
+        }
+      } catch (err) {
+        console.error("Error al guardar pago:", err);
+      }
+    }
+
+    // Cargar datos en Modal para Edición
+    async function prepararEdicion(id) {
+      try {
+        const response = await fetch(`${API_URL}/${id}`);
+        const pago = await response.json();
+
+        if (pago) {
+          document.getElementById('pagoId').value = pago.pago_id || pago.id;
+          document.getElementById('estudianteId').value = pago.estudiante_id;
+          document.getElementById('monto').value = pago.monto;
+          document.getElementById('concepto').value = pago.concepto;
+          document.getElementById('estado').value = pago.estado;
+          document.getElementById('fechaPago').value = pago.fecha ? new Date(pago.fecha).toISOString().split('T')[0] : '';
+          
+          openModal('edit');
+        }
+      } catch (err) {
+        console.error("Error al obtener detalles del pago:", err);
+      }
+    }
+
+    // Eliminar Pago
+    async function eliminarPago(id) {
+      if (confirm(`¿Estás seguro de que deseas eliminar el pago #${id}?`)) {
+        try {
+          const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+          if (response.ok) {
+            cargarTodosLosPagos();
+          } else {
+            alert("No se pudo eliminar el pago.");
+          }
+        } catch (err) {
+          console.error("Error al eliminar pago:", err);
+        }
+      }
+    }
+
+    // Control del Modal
+    function openModal(mode) {
+      const modal = document.getElementById('pagoModal');
+      const title = document.getElementById('modalTitle');
+      
+      if (mode === 'create') {
+        document.getElementById('pagoForm').reset();
+        document.getElementById('pagoId').value = '';
+        document.getElementById('fechaPago').value = new Date().toISOString().split('T')[0];
+        title.innerText = "Registrar Nuevo Pago";
+      } else {
+        title.innerText = "Editar Pago";
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('pagoModal').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
