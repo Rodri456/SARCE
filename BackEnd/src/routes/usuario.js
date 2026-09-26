@@ -7,6 +7,7 @@ router.get('/', usuariosController.obtenerTodos);
 router.get('/buscarPorCorreo/:correo', usuariosController.obtenerPorCorreo);
 router.get('/buscarPorNombre/:nombre', usuariosController.obtenerPorNombre);
 router.get('/buscarPorRol/:rol', usuariosController.obtenerPorRol);
+router.get('/:id', usuariosController.obtenerPorId);
 router.post('/', usuariosController.crear);
 router.put('/:id', usuariosController.actualizar);
 router.delete('/:id', usuariosController.eliminar);

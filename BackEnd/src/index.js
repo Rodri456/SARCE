@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import dotenv from "dotenv";
 
 import usuarioRoutes from './routes/usuario.js';
 import gradoRoutes from './routes/grado.js';
@@ -12,8 +13,6 @@ import asignacionRoutes from './routes/asignacion.js';
 import pagoRoutes from './routes/pago.js';
 import eventoCalendarioRoutes from './routes/eventoCalendario.js';
 import { errorHandler } from "./middlewares/errorHandler.js";
-
-import dotenv from "dotenv";
 
 dotenv.config();
 
@@ -35,9 +34,11 @@ app.use('/horarios', horarioRoutes);
 app.use('/calificaciones', calificacionRoutes);
 app.use('/asignaciones', asignacionRoutes);
 app.use('/pagos', pagoRoutes);
-app.use('/eventos-calendario', eventoCalendarioRoutes)
+app.use('/eventos-calendario', eventoCalendarioRoutes);
+
 app.use(errorHandler);
 
-app.listen(process.env.PORT || 3000, () => {
-    console.log('Servidor corriendo en http://localhost:${process.env.PORT || 3000}');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });

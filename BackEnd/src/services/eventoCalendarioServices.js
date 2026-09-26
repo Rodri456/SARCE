@@ -1,6 +1,5 @@
 import { pool } from '../db.js';
 
-// Consulta base relacionando Evento con el Creador (Usuario) y opcionalmente con un Grado
 const BASE_SELECT = `
     SELECT 
         e.id AS evento_id,
@@ -11,11 +10,9 @@ const BASE_SELECT = `
         e.fecha_fin,
         e.lugar,
         e.created_at AS fecha_registro,
-        -- Usuario Creador (Docente/Admin)
         u.id AS creador_id,
         u.nombre AS creador_nombre,
         u.correo AS creador_correo,
-        -- Grado (opcional si el evento es específico de un salón)
         g.id AS grado_id,
         g.nombre AS grado_nombre
     FROM evento_calendario e
@@ -23,21 +20,18 @@ const BASE_SELECT = `
     LEFT JOIN grado g ON e.grado_id = g.id
 `;
 
-// Obtener todos los eventos
 export const getAllEventos = async () => {
     const query = `${BASE_SELECT} ORDER BY e.fecha_inicio ASC;`;
     const result = await pool.query(query);
     return result.rows;
 };
 
-// Buscar por ID
 export const getEventoById = async (id) => {
     const query = `${BASE_SELECT} WHERE e.id = $1;`;
     const result = await pool.query(query, [id]);
     return result.rows[0] || null;
 };
 
-// Buscar por Título o Descripción (Búsqueda flexible)
 export const getEventosByTexto = async (texto) => {
     const buscar = `%${texto}%`;
     const query = `
@@ -49,7 +43,6 @@ export const getEventosByTexto = async (texto) => {
     return result.rows;
 };
 
-// Buscar por Tipo de Evento (ej: 'examen', 'feriado', 'reunion', 'deportivo')
 export const getEventosByTipo = async (tipo) => {
     const buscar = `%${tipo}%`;
     const query = `
@@ -61,7 +54,6 @@ export const getEventosByTipo = async (tipo) => {
     return result.rows;
 };
 
-// Buscar por Lugar (ej: 'Auditorio', 'Cancha', 'Virtual')
 export const getEventosByLugar = async (lugar) => {
     const buscar = `%${lugar}%`;
     const query = `
@@ -73,7 +65,6 @@ export const getEventosByLugar = async (lugar) => {
     return result.rows;
 };
 
-// Buscar por Creador / Organizador
 export const getEventosByCreador = async (texto) => {
     const buscar = `%${texto}%`;
     const query = `
@@ -85,7 +76,6 @@ export const getEventosByCreador = async (texto) => {
     return result.rows;
 };
 
-// Buscar por Grado
 export const getEventosByGrado = async (grado) => {
     const buscar = `%${grado}%`;
     const query = `
@@ -97,7 +87,6 @@ export const getEventosByGrado = async (grado) => {
     return result.rows;
 };
 
-// Buscar Eventos en un Rango de Fechas (YYYY-MM-DD)
 export const getEventosByRangoFechas = async (fechaInicio, fechaFin) => {
     const query = `
         ${BASE_SELECT} 
@@ -108,7 +97,6 @@ export const getEventosByRangoFechas = async (fechaInicio, fechaFin) => {
     return result.rows;
 };
 
-// Crear Evento
 export const postCrearEvento = async (
     titulo, 
     descripcion = null, 
@@ -129,7 +117,6 @@ export const postCrearEvento = async (
     return await getEventoById(result.rows[0].id);
 };
 
-// Actualizar Evento
 export const actualizarEvento = async (
     id, 
     titulo, 
@@ -161,7 +148,6 @@ export const actualizarEvento = async (
     return await getEventoById(id);
 };
 
-// Eliminar Evento
 export const eliminarEvento = async (id) => {
     const query = `DELETE FROM evento_calendario WHERE id = $1 RETURNING *;`;
     const result = await pool.query(query, [id]);

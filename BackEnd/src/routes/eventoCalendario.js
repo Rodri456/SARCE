@@ -7,7 +7,7 @@ const router = Router();
 router.get('/', eventoController.obtenerTodos);
 router.post('/', eventoController.crear);
 
-// Rutas con endpoints específicos (deben definirse ANTES de /:id)
+// Rutas específicas (deben definirse ANTES de /:id)
 router.get('/buscarPorFechas', eventoController.obtenerPorRangoFechas);
 router.get('/buscarPorTexto/:texto', eventoController.obtenerPorTexto);
 router.get('/buscarPorTipo/:tipo', eventoController.obtenerPorTipo);
@@ -15,7 +15,7 @@ router.get('/buscarPorLugar/:lugar', eventoController.obtenerPorLugar);
 router.get('/buscarPorCreador/:creador', eventoController.obtenerPorCreador);
 router.get('/buscarPorGrado/:grado', eventoController.obtenerPorGrado);
 
-// Rutas parametrizadas dinámicas genéricas
+// Rutas parametrizadas dinámicas
 router.get('/:id', eventoController.obtenerPorId);
 router.put('/:id', eventoController.actualizar);
 router.delete('/:id', eventoController.eliminar);
