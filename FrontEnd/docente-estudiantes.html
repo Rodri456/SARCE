@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SARCE — Estado de estudiantes</title>
+<link rel="icon" href="assets/img/logo-sarce.png">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="overlay-sidebar"></div>
+
+  <aside class="app-sidebar">
+    <div class="marca-sidebar">
+      <img src="assets/img/logo-sarce.png" alt="SARCE">
+      <div>
+        <div class="titulo-marca">SARCE</div>
+        <div class="subtitulo-marca">CECMA</div>
+      </div>
+    </div>
+    <div class="nav-perfil">Sesión de <strong>Docente</strong></div>
+    <div class="nav-grupo-titulo">Mi cuenta</div>
+    <nav>
+      <a href="docente-calificaciones.html" class="nav-link-sarce"><i class="bi bi-journal-plus"></i> Gestión de calificaciones</a>
+      <a href="docente-estudiantes.html" class="nav-link-sarce activo"><i class="bi bi-person-gear"></i> Estado de estudiantes</a>
+    </nav>
+    <div class="salir-sidebar">
+      <a href="index.html"><i class="bi bi-box-arrow-left"></i> Cerrar sesión</a>
+    </div>
+  </aside>
+
+  <div class="app-main">
+    <header class="app-topbar">
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn-menu-movil"><i class="bi bi-list"></i></button>
+        <div>
+          <p class="titulo-vista">Estado de estudiantes</p>
+          <p class="miga-pan mb-0">Docente / Activar o desactivar perfiles</p>
+        </div>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <span class="d-none d-sm-inline small text-muted-sarce">Téc. Oswaldo Acuña</span>
+        <span class="avatar-usuario">OA</span>
+      </div>
+    </header>
+
+    <main class="app-contenido">
+
+      <div class="filtro-barra mb-4">
+        <div class="row g-2 align-items-end">
+          <div class="col-6 col-md-3">
+            <label class="form-label small mb-1">Grado</label>
+            <select class="form-select form-select-sm">
+              <option>9° C</option>
+              <option>9° B</option>
+              <option>8° A</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label small mb-1">Buscar estudiante</label>
+            <input type="text" class="form-control form-control-sm" placeholder="Nombre o carné">
+          </div>
+          <div class="col-6 col-md-3">
+            <label class="form-label small mb-1">Estado</label>
+            <select class="form-select form-select-sm">
+              <option>Todos</option>
+              <option>Activo</option>
+              <option>Desactivado temporalmente</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="tarjeta-sarce">
+        <div class="franja-superior"></div>
+        <div class="tarjeta-header">
+          <h2><i class="bi bi-person-gear text-azul me-1"></i> 9° C — Listado de estudiantes</h2>
+          <span class="small text-muted-sarce">32 estudiantes</span>
+        </div>
+        <div class="tarjeta-body p-0">
+          <div class="table-responsive">
+            <table class="table tabla-sarce mb-0">
+              <thead>
+                <tr>
+                  <th>Carné</th>
+                  <th>Estudiante</th>
+                  <th>Estado actual</th>
+                  <th class="text-end">Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="small text-muted-sarce">2026-0101</td>
+                  <td>López Hernández, María Fernanda</td>
+                  <td><span class="badge-estado-activo"><i class="bi bi-circle-fill" style="font-size:0.5rem;"></i> Activo</span></td>
+                  <td class="text-end">
+                    <button class="btn btn-outline-danger btn-sm" data-cambiar-estado data-accion="desactivar" data-nombre-estudiante="María Fernanda López Hernández" data-bs-toggle="modal" data-bs-target="#modalEstado">
+                      <i class="bi bi-person-dash"></i> Desactivar
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="small text-muted-sarce">2026-0102</td>
+                  <td>Ramírez Castro, José Daniel</td>
+                  <td><span class="badge-estado-activo"><i class="bi bi-circle-fill" style="font-size:0.5rem;"></i> Activo</span></td>
+                  <td class="text-end">
+                    <button class="btn btn-outline-danger btn-sm" data-cambiar-estado data-accion="desactivar" data-nombre-estudiante="José Daniel Ramírez Castro" data-bs-toggle="modal" data-bs-target="#modalEstado">
+                      <i class="bi bi-person-dash"></i> Desactivar
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="small text-muted-sarce">2026-0103</td>
+                  <td>Alvarado Pérez, Kevin Alexander</td>
+                  <td><span class="badge-estado-inactivo"><i class="bi bi-circle-fill" style="font-size:0.5rem;"></i> Desactivado temporalmente</span></td>
+                  <td class="text-end">
+                    <button class="btn btn-sarce-outline btn-sm" data-cambiar-estado data-accion="reactivar" data-nombre-estudiante="Kevin Alexander Alvarado Pérez" data-bs-toggle="modal" data-bs-target="#modalEstado">
+                      <i class="bi bi-person-check"></i> Reactivar
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="small text-muted-sarce">2026-0104</td>
+                  <td>Guevara Martínez, Ana Sofía</td>
+                  <td><span class="badge-estado-activo"><i class="bi bi-circle-fill" style="font-size:0.5rem;"></i> Activo</span></td>
+                  <td class="text-end">
+                    <button class="btn btn-outline-danger btn-sm" data-cambiar-estado data-accion="desactivar" data-nombre-estudiante="Ana Sofía Guevara Martínez" data-bs-toggle="modal" data-bs-target="#modalEstado">
+                      <i class="bi bi-person-dash"></i> Desactivar
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="small text-muted-sarce">2026-0105</td>
+                  <td>Portillo Reyes, Diego Alejandro</td>
+                  <td><span class="badge-estado-activo"><i class="bi bi-circle-fill" style="font-size:0.5rem;"></i> Activo</span></td>
+                  <td class="text-end">
+                    <button class="btn btn-outline-danger btn-sm" data-cambiar-estado data-accion="desactivar" data-nombre-estudiante="Diego Alejandro Portillo Reyes" data-bs-toggle="modal" data-bs-target="#modalEstado">
+                      <i class="bi bi-person-dash"></i> Desactivar
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <footer class="pie-app">SARCE — Sistema Académico de Registro CECMA &copy; 2026</footer>
+  </div>
+</div>
+
+<!-- Modal de confirmación -->
+<div class="modal fade" id="modalEstado" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-exclamation-triangle text-rojo me-1"></i> Confirmar cambio de estado</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center py-4">
+        <span class="icono-advertencia-modal mb-3 d-inline-flex"><i class="bi bi-person-x"></i></span>
+        <p class="mb-1">Estás por <span id="modalEstadoAccion" class="fw-semibold">desactivar temporalmente</span> a:</p>
+        <p class="fw-bold fs-5" id="modalEstadoNombre" style="color:var(--sarce-azul-800);">—</p>
+        <p class="small text-muted-sarce mb-0">Esta acción puede revertirse más adelante desde este mismo módulo.</p>
+      </div>
+      <div class="modal-footer border-0 justify-content-center pb-4">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-sarce" id="btnConfirmarEstado" data-bs-dismiss="modal">Confirmar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/sarce.js"></script>
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SARCE — Portal de pagos</title>
+<link rel="icon" href="assets/img/logo-sarce.png">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="overlay-sidebar"></div>
+
+  <aside class="app-sidebar">
+    <div class="marca-sidebar">
+      <img src="assets/img/logo-sarce.png" alt="SARCE">
+      <div>
+        <div class="titulo-marca">SARCE</div>
+        <div class="subtitulo-marca">CECMA</div>
+      </div>
+    </div>
+    <div class="nav-perfil">Sesión de <strong>Estudiante</strong></div>
+    <div class="nav-grupo-titulo">Mi cuenta</div>
+    <nav>
+      <a href="estudiante-notas.html" class="nav-link-sarce"><i class="bi bi-journal-check"></i> Mis calificaciones</a>
+      <a href="estudiante-pagos.html" class="nav-link-sarce activo"><i class="bi bi-credit-card"></i> Portal de pagos</a>
+      <a href="estudiante-horarios.html" class="nav-link-sarce"><i class="bi bi-calendar3-week"></i> Horarios</a>
+      <a href="estudiante-calendario.html" class="nav-link-sarce"><i class="bi bi-calendar-event"></i> Calendario institucional</a>
+    </nav>
+    <div class="salir-sidebar">
+      <a href="index.html"><i class="bi bi-box-arrow-left"></i> Cerrar sesión</a>
+    </div>
+  </aside>
+
+  <div class="app-main">
+    <header class="app-topbar">
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn-menu-movil"><i class="bi bi-list"></i></button>
+        <div>
+          <p class="titulo-vista">Portal de pagos</p>
+          <p class="miga-pan mb-0">Estudiante / Gestión de pagos académicos</p>
+        </div>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <span class="d-none d-sm-inline small text-muted-sarce">María Fernanda López</span>
+        <span class="avatar-usuario">ML</span>
+      </div>
+    </header>
+
+    <main class="app-contenido">
+
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+          <div class="stat-sarce">
+            <span class="icono-stat rojo"><i class="bi bi-cash-coin"></i></span>
+            <div>
+              <div class="valor-stat">$45.00</div>
+              <div class="etiqueta-stat">Saldo pendiente</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="stat-sarce">
+            <span class="icono-stat verde"><i class="bi bi-check2-circle"></i></span>
+            <div>
+              <div class="valor-stat">7</div>
+              <div class="etiqueta-stat">Cuotas pagadas</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="stat-sarce">
+            <span class="icono-stat dorado"><i class="bi bi-calendar-check"></i></span>
+            <div>
+              <div class="valor-stat">05 oct</div>
+              <div class="etiqueta-stat">Próximo vencimiento</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="stat-sarce">
+            <span class="icono-stat azul"><i class="bi bi-receipt"></i></span>
+            <div>
+              <div class="valor-stat">10</div>
+              <div class="etiqueta-stat">Cuotas del año</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-lg-7">
+          <div class="tarjeta-sarce mb-4 mb-lg-0">
+            <div class="franja-superior"></div>
+            <div class="tarjeta-header">
+              <h2><i class="bi bi-list-check text-azul me-1"></i> Historial de cuotas</h2>
+            </div>
+            <div class="tarjeta-body p-0">
+              <div class="table-responsive">
+                <table class="table tabla-sarce mb-0">
+                  <thead>
+                    <tr>
+                      <th>Concepto</th>
+                      <th>Vencimiento</th>
+                      <th class="text-end">Monto</th>
+                      <th class="text-center">Estado</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Colegiatura — Septiembre</td>
+                      <td>05 sept. 2026</td>
+                      <td class="text-end">$45.00</td>
+                      <td class="text-center"><span class="badge-pago-pagado">Pagado</span></td>
+                      <td class="text-end"><a href="#" class="small text-azul">Comprobante</a></td>
+                    </tr>
+                    <tr>
+                      <td>Colegiatura — Octubre</td>
+                      <td>05 oct. 2026</td>
+                      <td class="text-end">$45.00</td>
+                      <td class="text-center"><span class="badge-pago-pendiente">Pendiente</span></td>
+                      <td class="text-end"><a href="#" class="small text-azul">Pagar</a></td>
+                    </tr>
+                    <tr>
+                      <td>Colegiatura — Agosto</td>
+                      <td>05 ago. 2026</td>
+                      <td class="text-end">$45.00</td>
+                      <td class="text-center"><span class="badge-pago-pagado">Pagado</span></td>
+                      <td class="text-end"><a href="#" class="small text-azul">Comprobante</a></td>
+                    </tr>
+                    <tr>
+                      <td>Matrícula 2026</td>
+                      <td>10 ene. 2026</td>
+                      <td class="text-end">$60.00</td>
+                      <td class="text-center"><span class="badge-pago-pagado">Pagado</span></td>
+                      <td class="text-end"><a href="#" class="small text-azul">Comprobante</a></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-5">
+          <div class="tarjeta-sarce">
+            <div class="franja-superior"></div>
+            <div class="tarjeta-header">
+              <h2><i class="bi bi-credit-card-2-front text-azul me-1"></i> Pagar cuota pendiente</h2>
+            </div>
+            <div class="tarjeta-body">
+              <form>
+                <div class="mb-3">
+                  <label class="form-label small">Cuota a pagar</label>
+                  <select class="form-select">
+                    <option>Colegiatura — Octubre ($45.00)</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small">Método de pago</label>
+                  <select class="form-select">
+                    <option>Tarjeta de crédito / débito</option>
+                    <option>Transferencia bancaria</option>
+                  </select>
+                </div>
+                <div class="row g-2 mb-3">
+                  <div class="col-12">
+                    <label class="form-label small">Número de tarjeta</label>
+                    <input type="text" class="form-control" placeholder="•••• •••• •••• ••••">
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label small">Vencimiento</label>
+                    <input type="text" class="form-control" placeholder="MM/AA">
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label small">CVV</label>
+                    <input type="text" class="form-control" placeholder="•••">
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-sarce w-100">
+                  <i class="bi bi-lock-fill me-1"></i> Confirmar pago de $45.00
+                </button>
+                <p class="small text-muted-sarce text-center mt-3 mb-0">
+                  <i class="bi bi-shield-check"></i> Transacción protegida y cifrada.
+                </p>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <footer class="pie-app">SARCE — Sistema Académico de Registro CECMA &copy; 2026</footer>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/sarce.js"></script>
+</body>
+</html>
