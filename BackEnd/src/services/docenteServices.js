@@ -129,9 +129,8 @@ export const postCrearDocente = async (nombre, correo, contrasena) => {
 };
 
 // Actualizar docente
-export const actualizarDocente = async (id, datosDocente) => {
-    const { nombre, correo, contrasena } = datosDocente;
-
+// En src/services/docenteServices.js
+export const actualizarDocente = async (id, nombre, correo, contrasena) => {
     const query = `
         UPDATE usuario 
         SET nombre = $1, 
@@ -147,16 +146,34 @@ export const actualizarDocente = async (id, datosDocente) => {
     return result.rows[0] || null;
 };
 
-// Elimina docente tambien lo en usuario
+// Eliminar docente (Maneja borrado en ambas tablas vía transacción)
 export const eliminarDocente = async (id) => {
-    const query = `DELETE FROM usuario WHERE id = $1 AND rol = 'docente' RETURNING id, nombre, correo;`;
-    const result = await pool.query(query, [id]);
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
 
-    if (result.rowCount === 0) {
-        const error = new Error('Docente no encontrado');
-        error.statusCode = 404;
-        throw error;
+        // 1. Eliminar primero de la tabla docente por la FK
+        await client.query(`DELETE FROM docente WHERE usuario_id = $1;`, [id]);
+
+        // 2. Eliminar de la tabla usuario
+        const resUsuario = await client.query(
+            `DELETE FROM usuario WHERE id = $1 AND rol = 'docente' RETURNING id, nombre, correo;`,
+            [id]
+        );
+
+        if (resUsuario.rowCount === 0) {
+            await client.query('ROLLBACK');
+            const error = new Error('Docente no encontrado');
+            error.statusCode = 404;
+            throw error;
+        }
+
+        await client.query('COMMIT');
+        return { message: 'Docente eliminado exitosamente', docente: resUsuario.rows[0] };
+    } catch (err) {
+        await client.query('ROLLBACK');
+        throw err;
+    } finally {
+        client.release();
     }
-
-    return { message: 'Docente eliminado exitosamente', docente: result.rows[0] };
 };

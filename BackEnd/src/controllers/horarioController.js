@@ -82,16 +82,18 @@ export const obtenerPorHoraFin = async (req, res, next) => {
 
 export const crear = async (req, res, next) => {
     try {
-        const { asignacionId, diaSemana, horaInicio, horaFin } = req.body;
+        const { gradoId, materiaId, docenteId, diaSemana, horaInicio, horaFin } = req.body;
 
-        if (!asignacionId || !diaSemana || !horaInicio || !horaFin) {
+        if (!gradoId || !materiaId || !docenteId || !diaSemana || !horaInicio || !horaFin) {
             return res.status(400).json({ 
-                message: 'Campos requeridos: asignacionId, diaSemana, horaInicio, horaFin' 
+                message: 'Campos requeridos: gradoId, materiaId, docenteId, diaSemana, horaInicio, horaFin' 
             });
         }
 
         const nuevoHorario = await horarioService.postCrearHorario(
-            asignacionId, 
+            gradoId, 
+            materiaId, 
+            docenteId, 
             diaSemana, 
             horaInicio, 
             horaFin
@@ -105,9 +107,9 @@ export const crear = async (req, res, next) => {
 export const actualizar = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const { asignacionId, diaSemana, horaInicio, horaFin } = req.body;
+        const { gradoId, materiaId, docenteId, diaSemana, horaInicio, horaFin } = req.body;
 
-        if (!asignacionId || !diaSemana || !horaInicio || !horaFin) {
+        if (!gradoId || !materiaId || !docenteId || !diaSemana || !horaInicio || !horaFin) {
             return res.status(400).json({ 
                 message: 'Todos los campos son obligatorios para actualizar el horario' 
             });
@@ -115,7 +117,9 @@ export const actualizar = async (req, res, next) => {
 
         const actualizado = await horarioService.actualizarHorario(
             id, 
-            asignacionId, 
+            gradoId, 
+            materiaId, 
+            docenteId, 
             diaSemana, 
             horaInicio, 
             horaFin

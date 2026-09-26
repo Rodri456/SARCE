@@ -50,16 +50,6 @@ export const obtenerPorEstado = async (req, res, next) => {
     }
 };
 
-export const obtenerPorMetodo = async (req, res, next) => {
-    const { metodo } = req.params;
-    try {
-        const result = await pagoService.getPagosByMetodo(metodo);
-        res.json(result);
-    } catch (err) {
-        next(err);
-    }
-};
-
 export const obtenerPorGrado = async (req, res, next) => {
     const { grado } = req.params;
     try {
@@ -98,7 +88,7 @@ export const obtenerPorRangoMonto = async (req, res, next) => {
 
 export const crear = async (req, res, next) => {
     try {
-        const { estudianteId, monto, concepto, estado, metodoPago, fechaPago } = req.body;
+        const { estudianteId, monto, concepto, estado, fecha } = req.body;
 
         if (!estudianteId || monto === undefined || !concepto) {
             return res.status(400).json({ 
@@ -111,8 +101,7 @@ export const crear = async (req, res, next) => {
             monto, 
             concepto, 
             estado, 
-            metodoPago, 
-            fechaPago
+            fecha
         );
         res.status(201).json(nuevoPago);
     } catch (err) {
@@ -123,11 +112,11 @@ export const crear = async (req, res, next) => {
 export const actualizar = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const { estudianteId, monto, concepto, estado, metodoPago, fechaPago } = req.body;
+        const { estudianteId, monto, concepto, estado, fecha } = req.body;
 
-        if (!estudianteId || monto === undefined || !concepto || !estado || !metodoPago || !fechaPago) {
+        if (!estudianteId || monto === undefined || !concepto || !estado || !fecha) {
             return res.status(400).json({ 
-                message: 'Todos los campos son requeridos para actualizar el pago' 
+                message: 'Todos los campos son requeridos para actualizar el pago: estudianteId, monto, concepto, estado, fecha' 
             });
         }
 
@@ -137,8 +126,7 @@ export const actualizar = async (req, res, next) => {
             monto, 
             concepto, 
             estado, 
-            metodoPago, 
-            fechaPago
+            fecha
         );
 
         if (!actualizado) return res.status(404).json({ message: 'Pago no encontrado' });

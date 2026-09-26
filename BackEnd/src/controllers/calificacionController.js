@@ -82,17 +82,18 @@ export const obtenerPorNota = async (req, res, next) => {
 
 export const crear = async (req, res, next) => {
     try {
-        const { estudianteId, asignacionId, nota, periodo } = req.body;
+        const { estudianteId, materiaId, docenteId, nota, periodo } = req.body;
 
-        if (!estudianteId || !asignacionId || nota === undefined || !periodo) {
+        if (!estudianteId || !materiaId || !docenteId || nota === undefined || !periodo) {
             return res.status(400).json({ 
-                message: 'Campos requeridos: estudianteId, asignacionId, nota, periodo' 
+                message: 'Campos requeridos: estudianteId, materiaId, docenteId, nota, periodo' 
             });
         }
 
         const nuevaCalificacion = await calificacionService.postCrearCalificacion(
             estudianteId, 
-            asignacionId, 
+            materiaId, 
+            docenteId, 
             nota, 
             periodo
         );
@@ -105,18 +106,19 @@ export const crear = async (req, res, next) => {
 export const actualizar = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const { estudianteId, asignacionId, nota, periodo } = req.body;
+        const { estudianteId, materiaId, docenteId, nota, periodo } = req.body;
 
-        if (!estudianteId || !asignacionId || nota === undefined || !periodo) {
+        if (!estudianteId || !materiaId || !docenteId || nota === undefined || !periodo) {
             return res.status(400).json({ 
-                message: 'Todos los campos son requeridos para actualizar la calificación' 
+                message: 'Todos los campos son requeridos para actualizar la calificación: estudianteId, materiaId, docenteId, nota, periodo' 
             });
         }
 
         const actualizada = await calificacionService.actualizarCalificacion(
             id, 
             estudianteId, 
-            asignacionId, 
+            materiaId, 
+            docenteId, 
             nota, 
             periodo
         );

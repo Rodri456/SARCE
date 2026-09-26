@@ -1,6 +1,6 @@
 import { pool } from '../db.js';
 
-// Estructura base para consultar Calificaciones con todos sus JOINs
+// Estructura base para consultar Calificaciones adaptada al esquema real
 const BASE_SELECT = `
     SELECT 
         c.id AS calificacion_id,
@@ -11,7 +11,7 @@ const BASE_SELECT = `
         u_est.id AS estudiante_id,
         u_est.nombre AS estudiante_nombre,
         u_est.correo AS estudiante_correo,
-        -- Datos del Grado
+        -- Datos del Grado (obtenido directamente del estudiante)
         g.id AS grado_id,
         g.nombre AS grado_nombre,
         -- Datos de la Materia
@@ -23,10 +23,9 @@ const BASE_SELECT = `
     FROM calificacion c
     INNER JOIN estudiante e ON c.estudiante_id = e.usuario_id
     INNER JOIN usuario u_est ON e.usuario_id = u_est.id
-    INNER JOIN asignacion a ON c.asignacion_id = a.id
-    INNER JOIN grado g ON a.grado_id = g.id
-    INNER JOIN materia m ON a.materia_id = m.id
-    INNER JOIN docente d ON a.docente_id = d.usuario_id
+    INNER JOIN grado g ON e.grado_id = g.id
+    INNER JOIN materia m ON c.materia_id = m.id
+    INNER JOIN docente d ON c.docente_id = d.usuario_id
     INNER JOIN usuario u_doc ON d.usuario_id = u_doc.id
 `;
 
@@ -92,7 +91,7 @@ export const getCalificacionesByGrado = async (grado) => {
     return result.rows;
 };
 
-// Buscar por Periodo (Búsqueda flexible, ej: 'Periodo 1', '1', 'P1')
+// Buscar por Periodo (Búsqueda flexible)
 export const getCalificacionesByPeriodo = async (periodo) => {
     const buscar = `%${periodo}%`;
     const query = `
@@ -117,29 +116,31 @@ export const getCalificacionesByNota = async (notaMinima, notaMaxima) => {
 };
 
 // Crear Calificación
-export const postCrearCalificacion = async (estudianteId, asignacionId, nota, periodo) => {
+export const postCrearCalificacion = async (estudianteId, materiaId, docenteId, nota, periodo) => {
     const query = `
-        INSERT INTO calificacion (estudiante_id, asignacion_id, nota, periodo)
-        VALUES ($1, $2, $3, $4)
+        INSERT INTO calificacion (estudiante_id, materia_id, docente_id, nota, periodo)
+        VALUES ($1, $2, $3, $4, $5)
         RETURNING id;
     `;
-    const values = [estudianteId, asignacionId, nota, periodo];
+    const values = [estudianteId, materiaId, docenteId, nota, periodo];
     const result = await pool.query(query, values);
     return await getCalificacionById(result.rows[0].id);
 };
 
 // Actualizar Calificación
-export const actualizarCalificacion = async (id, estudianteId, asignacionId, nota, periodo) => {
+export const actualizarCalificacion = async (id, estudianteId, materiaId, docenteId, nota, periodo) => {
     const query = `
         UPDATE calificacion
         SET estudiante_id = $1,
-            asignacion_id = $2,
-            nota = $3,
-            periodo = $4
-        WHERE id = $5
+            materia_id = $2,
+            docente_id = $3,
+            nota = $4,
+            periodo = $5,
+            updated_at = NOW()
+        WHERE id = $6
         RETURNING id;
     `;
-    const values = [estudianteId, asignacionId, nota, periodo, id];
+    const values = [estudianteId, materiaId, docenteId, nota, periodo, id];
     const result = await pool.query(query, values);
 
     if (result.rowCount === 0) return null;

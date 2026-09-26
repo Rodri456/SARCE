@@ -1,13 +1,13 @@
 import { pool } from '../db.js';
 
-// Estructura base de consulta con JOINs para traer contexto completo
+// Estructura de consulta haciendo JOIN directo con grado, materia y docente
 const BASE_SELECT = `
     SELECT 
         h.id AS horario_id,
         h.dia_semana,
         h.hora_inicio,
         h.hora_fin,
-        h.asignacion_id,
+        h.created_at AS fecha_registro,
         g.id AS grado_id,
         g.nombre AS grado_nombre,
         m.id AS materia_id,
@@ -15,10 +15,9 @@ const BASE_SELECT = `
         u.id AS docente_id,
         u.nombre AS docente_nombre
     FROM horario h
-    INNER JOIN asignacion a ON h.asignacion_id = a.id
-    INNER JOIN grado g ON a.grado_id = g.id
-    INNER JOIN materia m ON a.materia_id = m.id
-    INNER JOIN docente d ON a.docente_id = d.usuario_id
+    INNER JOIN grado g ON h.grado_id = g.id
+    INNER JOIN materia m ON h.materia_id = m.id
+    INNER JOIN docente d ON h.docente_id = d.usuario_id
     INNER JOIN usuario u ON d.usuario_id = u.id
 `;
 
@@ -29,7 +28,7 @@ export const getAllHorarios = async () => {
     return result.rows;
 };
 
-// Buscar por ID
+// Buscar horario por ID
 export const getHorarioById = async (id) => {
     const query = `${BASE_SELECT} WHERE h.id = $1;`;
     const result = await pool.query(query, [id]);
@@ -38,29 +37,29 @@ export const getHorarioById = async (id) => {
 
 // Buscar por Grado ID
 export const getHorariosByGrado = async (gradoId) => {
-    const query = `${BASE_SELECT} WHERE a.grado_id = $1 ORDER BY h.dia_semana, h.hora_inicio ASC;`;
+    const query = `${BASE_SELECT} WHERE h.grado_id = $1 ORDER BY h.dia_semana, h.hora_inicio ASC;`;
     const result = await pool.query(query, [gradoId]);
     return result.rows;
 };
 
 // Buscar por Materia ID
 export const getHorariosByMateria = async (materiaId) => {
-    const query = `${BASE_SELECT} WHERE a.materia_id = $1 ORDER BY h.dia_semana, h.hora_inicio ASC;`;
+    const query = `${BASE_SELECT} WHERE h.materia_id = $1 ORDER BY h.dia_semana, h.hora_inicio ASC;`;
     const result = await pool.query(query, [materiaId]);
     return result.rows;
 };
 
 // Buscar por Docente ID (usuario_id)
 export const getHorariosByDocente = async (docenteId) => {
-    const query = `${BASE_SELECT} WHERE a.docente_id = $1 ORDER BY h.dia_semana, h.hora_inicio ASC;`;
+    const query = `${BASE_SELECT} WHERE h.docente_id = $1 ORDER BY h.dia_semana, h.hora_inicio ASC;`;
     const result = await pool.query(query, [docenteId]);
     return result.rows;
 };
 
-// Buscar por Día de la semana (Lunes, Martes, etc.)
+// Buscar por Día de la semana
 export const getHorariosByDiaSemana = async (dia) => {
-    const query = `${BASE_SELECT} WHERE LOWER(h.dia_semana) = LOWER($1) ORDER BY h.hora_inicio ASC;`;
-    const result = await pool.query(query, [dia]);
+    const query = `${BASE_SELECT} WHERE LOWER(h.dia_semana::text) = LOWER($1) ORDER BY h.hora_inicio ASC;`;
+    const result = await pool.query(query, [dia.trim()]);
     return result.rows;
 };
 
@@ -79,29 +78,31 @@ export const getHorariosByHoraFin = async (horaFin) => {
 };
 
 // Crear Horario
-export const postCrearHorario = async (asignacionId, diaSemana, horaInicio, horaFin) => {
+export const postCrearHorario = async (gradoId, materiaId, docenteId, diaSemana, horaInicio, horaFin) => {
     const query = `
-        INSERT INTO horario (asignacion_id, dia_semana, hora_inicio, hora_fin)
-        VALUES ($1, $2, $3, $4)
-        RETURNING *;
+        INSERT INTO horario (grado_id, materia_id, docente_id, dia_semana, hora_inicio, hora_fin)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING id;
     `;
-    const values = [asignacionId, diaSemana, horaInicio, horaFin];
+    const values = [gradoId, materiaId, docenteId, diaSemana, horaInicio, horaFin];
     const result = await pool.query(query, values);
     return await getHorarioById(result.rows[0].id);
 };
 
 // Actualizar Horario
-export const actualizarHorario = async (id, asignacionId, diaSemana, horaInicio, horaFin) => {
+export const actualizarHorario = async (id, gradoId, materiaId, docenteId, diaSemana, horaInicio, horaFin) => {
     const query = `
         UPDATE horario
-        SET asignacion_id = $1,
-            dia_semana = $2,
-            hora_inicio = $3,
-            hora_fin = $4
-        WHERE id = $5
+        SET grado_id = $1,
+            materia_id = $2,
+            docente_id = $3,
+            dia_semana = $4,
+            hora_inicio = $5,
+            hora_fin = $6
+        WHERE id = $7
         RETURNING id;
     `;
-    const values = [asignacionId, diaSemana, horaInicio, horaFin, id];
+    const values = [gradoId, materiaId, docenteId, diaSemana, horaInicio, horaFin, id];
     const result = await pool.query(query, values);
 
     if (result.rowCount === 0) return null;

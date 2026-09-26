@@ -195,9 +195,8 @@ export const postCrearEstudiante = async (nombre, correo, contrasena, gradoId, e
     }
 };
 
-// Actualizar Estudiante (Transacción para modificar ambas tablas)
-export const actualizarEstudiante = async (id, datosEstudiante) => {
-    const { nombre, correo, contrasena, gradoId, estadoPerfil } = datosEstudiante;
+// Actualizar Estudiante
+export const actualizarEstudiante = async (id, nombre, correo, contrasena, gradoId, estadoPerfil) => {
     const client = await pool.connect();
 
     try {
@@ -241,16 +240,39 @@ export const actualizarEstudiante = async (id, datosEstudiante) => {
     }
 };
 
-// Eliminar Estudiante (CASCADE elimina de la tabla estudiante al borrar de usuario)
+// Eliminar Estudiante (Transacción SQL para evitar error de FK)
 export const eliminarEstudiante = async (id) => {
-    const query = `DELETE FROM usuario WHERE id = $1 AND rol = 'estudiante' RETURNING id, nombre, correo;`;
-    const result = await pool.query(query, [id]);
+    const client = await pool.connect();
 
-    if (result.rowCount === 0) {
-        const error = new Error('Estudiante no encontrado');
-        error.statusCode = 404;
-        throw error;
+    try {
+        await client.query('BEGIN');
+
+        // 1. Eliminar primero de la tabla estudiante
+        await client.query(`DELETE FROM estudiante WHERE usuario_id = $1;`, [id]);
+
+        // 2. Eliminar de la tabla usuario
+        const resUsuario = await client.query(
+            `DELETE FROM usuario WHERE id = $1 AND rol = 'estudiante' RETURNING id, nombre, correo;`,
+            [id]
+        );
+
+        if (resUsuario.rowCount === 0) {
+            await client.query('ROLLBACK');
+            const error = new Error('Estudiante no encontrado');
+            error.statusCode = 404;
+            throw error;
+        }
+
+        await client.query('COMMIT');
+
+        return { 
+            message: 'Estudiante eliminado exitosamente', 
+            estudiante: resUsuario.rows[0] 
+        };
+    } catch (err) {
+        await client.query('ROLLBACK');
+        throw err;
+    } finally {
+        client.release();
     }
-
-    return { message: 'Estudiante eliminado exitosamente', estudiante: result.rows[0] };
 };

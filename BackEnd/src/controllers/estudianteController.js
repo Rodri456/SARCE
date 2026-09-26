@@ -109,7 +109,15 @@ export const actualizar = async (req, res, next) => {
             });
         }
 
-        const updatedEstudiante = await estudianteService.actualizarEstudiante(id, req.body);
+        // Corrección: paso explícito de parámetros en lugar de enviar req.body desestructurado
+        const updatedEstudiante = await estudianteService.actualizarEstudiante(
+            id, 
+            nombre, 
+            correo, 
+            contrasena, 
+            gradoId, 
+            estadoPerfil
+        );
 
         if (!updatedEstudiante) {
             return res.status(404).json({ message: 'Estudiante no encontrado' });

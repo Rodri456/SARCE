@@ -1,7 +1,6 @@
 import { pool } from '../db.js';
 
 // Consulta base uniendo Pago con Estudiante, Usuario y Grado
-// Se removieron p.metodo_pago y p.fecha_pago, utilizando p.fecha en su lugar.
 const BASE_SELECT = `
     SELECT 
         p.id AS pago_id,
@@ -49,7 +48,7 @@ export const getPagosByEstudiante = async (texto) => {
     return result.rows;
 };
 
-// Buscar por Concepto (ej: 'mensualidad', 'matrícula', 'pension')
+// Buscar por Concepto
 export const getPagosByConcepto = async (concepto) => {
     const buscar = `%${concepto}%`;
     const query = `
@@ -61,7 +60,7 @@ export const getPagosByConcepto = async (concepto) => {
     return result.rows;
 };
 
-// Buscar por Estado (ej: 'completado', 'pendiente', 'rechazado')
+// Buscar por Estado
 export const getPagosByEstado = async (estado) => {
     const buscar = `%${estado}%`;
     const query = `
@@ -73,7 +72,7 @@ export const getPagosByEstado = async (estado) => {
     return result.rows;
 };
 
-// Buscar por Grado del estudiante (ej: 'Séptimo', 'A')
+// Buscar por Grado del estudiante
 export const getPagosByGrado = async (grado) => {
     const buscar = `%${grado}%`;
     const query = `
@@ -108,7 +107,7 @@ export const getPagosByRangoMonto = async (min, max) => {
 };
 
 // Crear Pago
-export const postCrearPago = async (estudianteId, monto, concepto, estado = 'completado', fecha = new Date()) => {
+export const postCrearPago = async (estudianteId, monto, concepto, estado = 'pendiente', fecha = new Date()) => {
     const query = `
         INSERT INTO pago (estudiante_id, monto, concepto, estado, fecha)
         VALUES ($1, $2, $3, $4, $5)

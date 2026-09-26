@@ -36,7 +36,7 @@ export const crear = async (req, res, next) => {
     try {
         const { nombre } = req.body;
         
-        if (!nombre) {
+        if (!nombre || typeof nombre !== 'string' || !nombre.trim()) {
             return res.status(400).json({ message: 'El campo nombre es obligatorio' });
         }
 
@@ -52,7 +52,7 @@ export const actualizar = async (req, res, next) => {
         const { id } = req.params;
         const { nombre } = req.body;
 
-        if (!nombre) {
+        if (!nombre || typeof nombre !== 'string' || !nombre.trim()) {
             return res.status(400).json({ message: 'El campo nombre es obligatorio' });
         }
 
@@ -62,7 +62,7 @@ export const actualizar = async (req, res, next) => {
             return res.status(404).json({ message: 'Grado no encontrado' });
         }
 
-        return res.status(200).json(updatedGrado);
+        res.status(200).json(updatedGrado);
     } catch (err) {
         next(err);
     }

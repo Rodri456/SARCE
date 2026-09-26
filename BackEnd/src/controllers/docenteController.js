@@ -75,12 +75,17 @@ export const actualizar = async (req, res, next) => {
         const { id } = req.params;
         const { nombre, correo, contrasena } = req.body;
 
+        // Validar que vengan todos los campos obligatorios
         if (!nombre || !correo || !contrasena) {
-            return res.status(400).json({ message: 'Todos los campos son requeridos para la actualización' });
+            return res.status(400).json({ 
+                message: 'Todos los campos son requeridos para la actualización' 
+            });
         }
 
-        const updatedDocente = await docenteService.actualizarDocente(id, req.body);
+        // AQUÍ VA LA LÍNEA: Llama al servicio pasando el ID y los datos requeridos
+        const updatedDocente = await docenteService.actualizarDocente(id, nombre, correo, contrasena);
 
+        // Si la consulta no devuelve filas (por ejemplo, el ID no existe o no es un docente)
         if (!updatedDocente) {
             return res.status(404).json({ message: 'Docente no encontrado' });
         }

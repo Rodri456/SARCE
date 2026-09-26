@@ -109,7 +109,16 @@ export const getEventosByRangoFechas = async (fechaInicio, fechaFin) => {
 };
 
 // Crear Evento
-export const postCrearEvento = async (titulo, descripcion, tipo, fechaInicio, fechaFin, lugar, creadorId, gradoId = null) => {
+export const postCrearEvento = async (
+    titulo, 
+    descripcion = null, 
+    tipo, 
+    fechaInicio, 
+    fechaFin, 
+    lugar = null, 
+    creadorId, 
+    gradoId = null
+) => {
     const query = `
         INSERT INTO evento_calendario (titulo, descripcion, tipo, fecha_inicio, fecha_fin, lugar, creador_id, grado_id)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
@@ -121,7 +130,17 @@ export const postCrearEvento = async (titulo, descripcion, tipo, fechaInicio, fe
 };
 
 // Actualizar Evento
-export const actualizarEvento = async (id, titulo, descripcion, tipo, fechaInicio, fechaFin, lugar, creadorId, gradoId) => {
+export const actualizarEvento = async (
+    id, 
+    titulo, 
+    descripcion = null, 
+    tipo, 
+    fechaInicio, 
+    fechaFin, 
+    lugar = null, 
+    creadorId, 
+    gradoId = null
+) => {
     const query = `
         UPDATE evento_calendario
         SET titulo = $1,
