@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-rol="estudiante">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +9,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<!-- Protección de la página: debe cargarse en el head, antes del resto -->
+<script src="js/sesion.js"></script>
 <link rel="stylesheet" href="css/estilos.css">
 </head>
 <body>
@@ -33,7 +35,7 @@
       <a href="estudiante-calendario.html" class="nav-link-sarce activo"><i class="bi bi-calendar-event"></i> Calendario institucional</a>
     </nav>
     <div class="salir-sidebar">
-      <a href="index.html"><i class="bi bi-box-arrow-left"></i> Cerrar sesión</a>
+      <a href="login.html"><i class="bi bi-box-arrow-left"></i> Cerrar sesión</a>
     </div>
   </aside>
 
@@ -47,8 +49,8 @@
         </div>
       </div>
       <div class="d-flex align-items-center gap-2">
-        <span class="d-none d-sm-inline small text-muted-sarce">María Fernanda López</span>
-        <span class="avatar-usuario">ML</span>
+        <span class="d-none d-sm-inline small text-muted-sarce">…</span>
+        <span class="avatar-usuario">…</span>
       </div>
     </header>
 
@@ -65,54 +67,14 @@
           <div class="tarjeta-sarce">
             <div class="franja-superior"></div>
             <div class="tarjeta-header">
-              <h2><i class="bi bi-calendar-event text-azul me-1"></i> Octubre 2026</h2>
+              <h2 id="tituloMes"><i class="bi bi-calendar-event text-azul me-1"></i> Cargando...</h2>
               <div class="btn-group btn-group-sm">
-                <button class="btn btn-outline-secondary"><i class="bi bi-chevron-left"></i></button>
-                <button class="btn btn-outline-secondary"><i class="bi bi-chevron-right"></i></button>
+                <button id="btnMesAnterior" class="btn btn-outline-secondary" aria-label="Mes anterior"><i class="bi bi-chevron-left"></i></button>
+                <button id="btnMesSiguiente" class="btn btn-outline-secondary" aria-label="Mes siguiente"><i class="bi bi-chevron-right"></i></button>
               </div>
             </div>
-            <div class="tarjeta-body">
-
-              <div class="evento-calendario tipo-evento">
-                <div class="evento-fecha"><span class="dia">03</span><span class="mes">Oct</span></div>
-                <div>
-                  <div class="fw-semibold" style="color:var(--sarce-azul-800);">Feria de Ciencias y Robótica</div>
-                  <div class="small text-muted-sarce">Presentación de proyectos, 8:00 a.m. — Patio central</div>
-                </div>
-              </div>
-
-              <div class="evento-calendario tipo-pausa">
-                <div class="evento-fecha"><span class="dia">09</span><span class="mes">Oct</span></div>
-                <div>
-                  <div class="fw-semibold" style="color:var(--sarce-azul-800);">Pausa pedagógica</div>
-                  <div class="small text-muted-sarce">Jornada de planificación docente — sin clases</div>
-                </div>
-              </div>
-
-              <div class="evento-calendario tipo-asueto">
-                <div class="evento-fecha"><span class="dia">12</span><span class="mes">Oct</span></div>
-                <div>
-                  <div class="fw-semibold" style="color:var(--sarce-azul-800);">Día de la Persona Autóctona / Asueto</div>
-                  <div class="small text-muted-sarce">Asueto nacional</div>
-                </div>
-              </div>
-
-              <div class="evento-calendario tipo-evento">
-                <div class="evento-fecha"><span class="dia">24</span><span class="mes">Oct</span></div>
-                <div>
-                  <div class="fw-semibold" style="color:var(--sarce-azul-800);">Entrega de boletas — II Trimestre</div>
-                  <div class="small text-muted-sarce">Reunión con padres de familia, 5:00 p.m.</div>
-                </div>
-              </div>
-
-              <div class="evento-calendario tipo-pausa">
-                <div class="evento-fecha"><span class="dia">30</span><span class="mes">Oct</span></div>
-                <div>
-                  <div class="fw-semibold" style="color:var(--sarce-azul-800);">Pausa administrativa</div>
-                  <div class="small text-muted-sarce">Cierre de notas del trimestre — sin clases</div>
-                </div>
-              </div>
-
+            <div class="tarjeta-body" id="listaEventos">
+              <p class="text-center text-muted-sarce py-4 mb-0">Cargando eventos...</p>
             </div>
           </div>
         </div>
@@ -124,14 +86,8 @@
               <h2><i class="bi bi-bell text-azul me-1"></i> Próximo</h2>
             </div>
             <div class="tarjeta-body">
-              <div class="d-flex align-items-center gap-3 mb-3">
-                <div class="evento-fecha" style="background: rgba(242,176,30,0.16);">
-                  <span class="dia" style="color:#A87400;">03</span><span class="mes">Oct</span>
-                </div>
-                <div>
-                  <div class="fw-semibold small" style="color:var(--sarce-azul-800);">Feria de Ciencias y Robótica</div>
-                  <div class="small text-muted-sarce">En 12 días</div>
-                </div>
+              <div id="proximoEvento" class="mb-3">
+                <p class="small text-muted-sarce mb-0">Cargando...</p>
               </div>
               <p class="small text-muted-sarce mb-0">
                 Consulta este espacio periódicamente: la dirección académica actualiza aquí los asuetos oficiales y las pausas administrativas del colegio.
@@ -149,5 +105,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="js/sarce.js"></script>
+<script src="js/estudiante-calendario.js"></script>
 </body>
 </html>

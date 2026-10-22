@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-rol="estudiante">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +9,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<!-- Protección de la página: debe cargarse en el head, antes del resto -->
+<script src="js/sesion.js"></script>
 <link rel="stylesheet" href="css/estilos.css">
 </head>
 <body>
@@ -33,7 +35,7 @@
       <a href="estudiante-calendario.html" class="nav-link-sarce"><i class="bi bi-calendar-event"></i> Calendario institucional</a>
     </nav>
     <div class="salir-sidebar">
-      <a href="index.html"><i class="bi bi-box-arrow-left"></i> Cerrar sesión</a>
+      <a href="login.html"><i class="bi bi-box-arrow-left"></i> Cerrar sesión</a>
     </div>
   </aside>
 
@@ -47,8 +49,8 @@
         </div>
       </div>
       <div class="d-flex align-items-center gap-2">
-        <span class="d-none d-sm-inline small text-muted-sarce">María Fernanda López</span>
-        <span class="avatar-usuario">ML</span>
+        <span class="d-none d-sm-inline small text-muted-sarce">…</span>
+        <span class="avatar-usuario">…</span>
       </div>
     </header>
 
@@ -59,7 +61,7 @@
           <div class="stat-sarce">
             <span class="icono-stat rojo"><i class="bi bi-cash-coin"></i></span>
             <div>
-              <div class="valor-stat">$45.00</div>
+              <div class="valor-stat">—</div>
               <div class="etiqueta-stat">Saldo pendiente</div>
             </div>
           </div>
@@ -68,7 +70,7 @@
           <div class="stat-sarce">
             <span class="icono-stat verde"><i class="bi bi-check2-circle"></i></span>
             <div>
-              <div class="valor-stat">7</div>
+              <div class="valor-stat">—</div>
               <div class="etiqueta-stat">Cuotas pagadas</div>
             </div>
           </div>
@@ -77,7 +79,7 @@
           <div class="stat-sarce">
             <span class="icono-stat dorado"><i class="bi bi-calendar-check"></i></span>
             <div>
-              <div class="valor-stat">05 oct</div>
+              <div class="valor-stat">—</div>
               <div class="etiqueta-stat">Próximo vencimiento</div>
             </div>
           </div>
@@ -86,7 +88,7 @@
           <div class="stat-sarce">
             <span class="icono-stat azul"><i class="bi bi-receipt"></i></span>
             <div>
-              <div class="valor-stat">10</div>
+              <div class="valor-stat">—</div>
               <div class="etiqueta-stat">Cuotas del año</div>
             </div>
           </div>
@@ -106,7 +108,7 @@
                   <thead>
                     <tr>
                       <th>Concepto</th>
-                      <th>Vencimiento</th>
+                      <th>Fecha</th>
                       <th class="text-end">Monto</th>
                       <th class="text-center">Estado</th>
                       <th></th>
@@ -114,32 +116,7 @@
                   </thead>
                   <tbody>
                     <tr>
-                      <td>Colegiatura — Septiembre</td>
-                      <td>05 sept. 2026</td>
-                      <td class="text-end">$45.00</td>
-                      <td class="text-center"><span class="badge-pago-pagado">Pagado</span></td>
-                      <td class="text-end"><a href="#" class="small text-azul">Comprobante</a></td>
-                    </tr>
-                    <tr>
-                      <td>Colegiatura — Octubre</td>
-                      <td>05 oct. 2026</td>
-                      <td class="text-end">$45.00</td>
-                      <td class="text-center"><span class="badge-pago-pendiente">Pendiente</span></td>
-                      <td class="text-end"><a href="#" class="small text-azul">Pagar</a></td>
-                    </tr>
-                    <tr>
-                      <td>Colegiatura — Agosto</td>
-                      <td>05 ago. 2026</td>
-                      <td class="text-end">$45.00</td>
-                      <td class="text-center"><span class="badge-pago-pagado">Pagado</span></td>
-                      <td class="text-end"><a href="#" class="small text-azul">Comprobante</a></td>
-                    </tr>
-                    <tr>
-                      <td>Matrícula 2026</td>
-                      <td>10 ene. 2026</td>
-                      <td class="text-end">$60.00</td>
-                      <td class="text-center"><span class="badge-pago-pagado">Pagado</span></td>
-                      <td class="text-end"><a href="#" class="small text-azul">Comprobante</a></td>
+                      <td colspan="5" class="text-center text-muted-sarce py-4">Cargando pagos...</td>
                     </tr>
                   </tbody>
                 </table>
@@ -159,7 +136,7 @@
                 <div class="mb-3">
                   <label class="form-label small">Cuota a pagar</label>
                   <select class="form-select">
-                    <option>Colegiatura — Octubre ($45.00)</option>
+                    <option>Cargando...</option>
                   </select>
                 </div>
                 <div class="mb-3">
@@ -172,19 +149,19 @@
                 <div class="row g-2 mb-3">
                   <div class="col-12">
                     <label class="form-label small">Número de tarjeta</label>
-                    <input type="text" class="form-control" placeholder="•••• •••• •••• ••••">
+                    <input type="text" class="form-control" placeholder="•••• •••• •••• ••••" inputmode="numeric" autocomplete="off">
                   </div>
                   <div class="col-6">
                     <label class="form-label small">Vencimiento</label>
-                    <input type="text" class="form-control" placeholder="MM/AA">
+                    <input type="text" class="form-control" placeholder="MM/AA" autocomplete="off">
                   </div>
                   <div class="col-6">
                     <label class="form-label small">CVV</label>
-                    <input type="text" class="form-control" placeholder="•••">
+                    <input type="password" class="form-control" placeholder="•••" inputmode="numeric" maxlength="4" autocomplete="off">
                   </div>
                 </div>
                 <button type="submit" class="btn btn-sarce w-100">
-                  <i class="bi bi-lock-fill me-1"></i> Confirmar pago de $45.00
+                  <i class="bi bi-lock-fill me-1"></i> Confirmar pago
                 </button>
                 <p class="small text-muted-sarce text-center mt-3 mb-0">
                   <i class="bi bi-shield-check"></i> Transacción protegida y cifrada.
@@ -202,6 +179,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="js/sarce.js"></script>
+<script src="js/estudiante-pago.js"></script>
 </body>
 </html>

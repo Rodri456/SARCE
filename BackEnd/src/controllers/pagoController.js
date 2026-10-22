@@ -146,3 +146,14 @@ export const eliminar = async (req, res, next) => {
         next(err);
     }
 };
+
+export const obtenerPorEstudianteId = async (req, res, next) => {
+    const { id } = req.params;
+    try {
+        const result = await pagoService.getPagosByEstudianteId(id);
+        res.json(result);
+    } catch (err) {
+        next(err);
+    }
+};
+ 

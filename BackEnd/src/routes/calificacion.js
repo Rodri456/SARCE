@@ -15,5 +15,7 @@ router.get('/buscarPorDocente/:texto', calificacionController.obtenerPorDocente)
 router.get('/buscarPorMateria/:materia', calificacionController.obtenerPorMateria);
 router.get('/buscarPorGrado/:grado', calificacionController.obtenerPorGrado);
 router.get('/buscarPorPeriodo/:periodo', calificacionController.obtenerPorPeriodo);
+router.get('/estudiante/:id', calificacionController.obtenerPorEstudianteId);
+ router.get('/docente/:id', calificacionController.obtenerPorDocenteId);
 
 export default router;

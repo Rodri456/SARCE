@@ -6,6 +6,22 @@ export const getAllUsuarios = async () => {
     return result.rows;
 };
 
+export const loginUsuario = async (correo, contrasena) => {
+    const result = await pool.query(
+        `SELECT u.id, u.nombre, u.correo, u.rol, u.contrasena, u.created_at, u.updated_at,
+                e.estado_perfil
+         FROM usuario u
+         LEFT JOIN estudiante e ON e.usuario_id = u.id
+         WHERE u.correo = $1;`,
+        [correo]
+    );
+    const fila = result.rows[0];
+    if (!fila || fila.contrasena !== contrasena) {
+        return null;
+    }
+    const { contrasena: _omitida, ...usuario } = fila;
+    return usuario;
+};
 // Buscar usuario por ID
 export const getUsuarioById = async (id) => {
     const result = await pool.query(
@@ -82,3 +98,4 @@ export const eliminarUsuario = async (id) => {
     }
     return { message: 'Usuario eliminado exitosamente', usuario: result.rows[0] };
 };
+

@@ -150,3 +150,13 @@ export const eliminarPago = async (id) => {
 
     return { message: 'Pago eliminado exitosamente', pago: result.rows[0] };
 };
+
+export const getPagosByEstudianteId = async (estudianteId) => {
+    const query = `
+        ${BASE_SELECT}
+        WHERE p.estudiante_id = $1
+        ORDER BY p.fecha DESC, p.id DESC;
+    `;
+    const result = await pool.query(query, [estudianteId]);
+    return result.rows;
+};

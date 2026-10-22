@@ -138,3 +138,73 @@ export const eliminar = async (req, res, next) => {
         next(err);
     }
 };
+
+const ESTADOS_VALIDOS = ['activo', 'inactivo', 'retirado'];
+ 
+export const cambiarEstado = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { estadoPerfil } = req.body;
+ 
+        if (!ESTADOS_VALIDOS.includes(estadoPerfil)) {
+            return res.status(400).json({
+                message: `estadoPerfil debe ser uno de: ${ESTADOS_VALIDOS.join(', ')}`
+            });
+        }
+ 
+        const actualizado = await estudianteService.cambiarEstadoPerfil(id, estadoPerfil);
+        if (!actualizado) return res.status(404).json({ message: 'Estudiante no encontrado' });
+ 
+        res.status(200).json(actualizado);
+    } catch (err) {
+        next(err);
+    }
+};
+
+
+export const obtenerPorDocenteYGrado = async (req, res, next) => {
+    const { docenteId, gradoId } = req.params;
+    try {
+        const permitido = await estudianteService.docenteImparteEnGrado(docenteId, gradoId);
+        if (!permitido) {
+            return res.status(403).json({ message: 'No tienes asignado este grado.' });
+        }
+        const result = await estudianteService.getEstudiantesByGradoId(gradoId);
+        res.json(result);
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const cambiarEstado = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { estadoPerfil, docenteId } = req.body;
+ 
+        if (!docenteId) {
+            return res.status(400).json({ message: 'El campo docenteId es requerido' });
+        }
+        if (!ESTADOS_VALIDOS.includes(estadoPerfil)) {
+            return res.status(400).json({
+                message: `estadoPerfil debe ser uno de: ${ESTADOS_VALIDOS.join(', ')}`
+            });
+        }
+ 
+        const estudiante = await estudianteService.getEstudianteById(id);
+        if (!estudiante) return res.status(404).json({ message: 'Estudiante no encontrado' });
+ 
+        const permitido = await estudianteService.docenteImparteEnGrado(docenteId, estudiante.grado_id);
+        if (!permitido) {
+            return res.status(403).json({
+                message: 'Solo puedes cambiar el estado de estudiantes de tus grados asignados.'
+            });
+        }
+ 
+        const actualizado = await estudianteService.cambiarEstadoPerfil(id, estadoPerfil);
+        res.status(200).json(actualizado);
+    } catch (err) {
+        next(err);
+    }
+};
+
+const ESTADOS_VALIDOS = ['activo', 'inactivo', 'retirado'];

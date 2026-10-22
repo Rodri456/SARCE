@@ -114,3 +114,13 @@ export const eliminarAsignacion = async (id) => {
 
     return { message: 'Asignación eliminada exitosamente', asignacion: result.rows[0] };
 };
+
+export const getAsignacionesByDocenteId = async (docenteId) => {
+    const query = `
+        ${BASE_SELECT}
+        WHERE a.docente_id = $1
+        ORDER BY g.nombre ASC, m.nombre ASC;
+    `;
+    const result = await pool.query(query, [docenteId]);
+    return result.rows;
+};

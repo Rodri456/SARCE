@@ -1,162 +1,80 @@
 import { pool } from '../db.js';
 
 const BASE_SELECT = `
-    SELECT 
+    SELECT
         e.id AS evento_id,
-        e.titulo,
-        e.descripcion,
+        e.nombre,
         e.tipo,
-        e.fecha_inicio,
-        e.fecha_fin,
-        e.lugar,
-        e.created_at AS fecha_registro,
-        u.id AS creador_id,
-        u.nombre AS creador_nombre,
-        u.correo AS creador_correo,
-        g.id AS grado_id,
-        g.nombre AS grado_nombre
+        to_char(e.fecha_inicio, 'YYYY-MM-DD') AS fecha_inicio,
+        to_char(e.fecha_fin, 'YYYY-MM-DD') AS fecha_fin,
+        e.created_at AS fecha_registro
     FROM evento_calendario e
-    LEFT JOIN usuario u ON e.creador_id = u.id
-    LEFT JOIN grado g ON e.grado_id = g.id
 `;
 
 export const getAllEventos = async () => {
-    const query = `${BASE_SELECT} ORDER BY e.fecha_inicio ASC;`;
-    const result = await pool.query(query);
+    const result = await pool.query(`${BASE_SELECT} ORDER BY e.fecha_inicio ASC;`);
     return result.rows;
 };
 
 export const getEventoById = async (id) => {
-    const query = `${BASE_SELECT} WHERE e.id = $1;`;
-    const result = await pool.query(query, [id]);
+    const result = await pool.query(`${BASE_SELECT} WHERE e.id = $1;`, [id]);
     return result.rows[0] || null;
 };
 
 export const getEventosByTexto = async (texto) => {
-    const buscar = `%${texto}%`;
-    const query = `
-        ${BASE_SELECT} 
-        WHERE e.titulo ILIKE $1 OR e.descripcion ILIKE $1
-        ORDER BY e.fecha_inicio ASC;
-    `;
-    const result = await pool.query(query, [buscar]);
+    const result = await pool.query(
+        `${BASE_SELECT} WHERE e.nombre ILIKE $1 ORDER BY e.fecha_inicio ASC;`,
+        [`%${texto}%`]
+    );
     return result.rows;
 };
 
 export const getEventosByTipo = async (tipo) => {
-    const buscar = `%${tipo}%`;
-    const query = `
-        ${BASE_SELECT} 
-        WHERE e.tipo ILIKE $1 
-        ORDER BY e.fecha_inicio ASC;
-    `;
-    const result = await pool.query(query, [buscar]);
+    const result = await pool.query(
+        `${BASE_SELECT} WHERE e.tipo ILIKE $1 ORDER BY e.fecha_inicio ASC;`,
+        [`%${tipo}%`]
+    );
     return result.rows;
 };
 
-export const getEventosByLugar = async (lugar) => {
-    const buscar = `%${lugar}%`;
-    const query = `
-        ${BASE_SELECT} 
-        WHERE e.lugar ILIKE $1 
-        ORDER BY e.fecha_inicio ASC;
-    `;
-    const result = await pool.query(query, [buscar]);
+// Eventos que se traslapan con el rango [inicio, fin]
+export const getEventosByRangoFechas = async (inicio, fin) => {
+    const result = await pool.query(
+        `${BASE_SELECT}
+         WHERE e.fecha_inicio <= $2 AND e.fecha_fin >= $1
+         ORDER BY e.fecha_inicio ASC;`,
+        [inicio, fin]
+    );
     return result.rows;
 };
 
-export const getEventosByCreador = async (texto) => {
-    const buscar = `%${texto}%`;
-    const query = `
-        ${BASE_SELECT} 
-        WHERE u.nombre ILIKE $1 OR u.correo ILIKE $1 
-        ORDER BY e.fecha_inicio ASC;
-    `;
-    const result = await pool.query(query, [buscar]);
-    return result.rows;
-};
-
-export const getEventosByGrado = async (grado) => {
-    const buscar = `%${grado}%`;
-    const query = `
-        ${BASE_SELECT} 
-        WHERE g.nombre ILIKE $1 
-        ORDER BY e.fecha_inicio ASC;
-    `;
-    const result = await pool.query(query, [buscar]);
-    return result.rows;
-};
-
-export const getEventosByRangoFechas = async (fechaInicio, fechaFin) => {
-    const query = `
-        ${BASE_SELECT} 
-        WHERE DATE(e.fecha_inicio) >= $1 AND DATE(e.fecha_fin) <= $2 
-        ORDER BY e.fecha_inicio ASC;
-    `;
-    const result = await pool.query(query, [fechaInicio, fechaFin]);
-    return result.rows;
-};
-
-export const postCrearEvento = async (
-    titulo, 
-    descripcion = null, 
-    tipo, 
-    fechaInicio, 
-    fechaFin, 
-    lugar = null, 
-    creadorId, 
-    gradoId = null
-) => {
-    const query = `
-        INSERT INTO evento_calendario (titulo, descripcion, tipo, fecha_inicio, fecha_fin, lugar, creador_id, grado_id)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-        RETURNING id;
-    `;
-    const values = [titulo, descripcion, tipo, fechaInicio, fechaFin, lugar, creadorId, gradoId];
-    const result = await pool.query(query, values);
+export const postCrearEvento = async ({ nombre, tipo, fechaInicio, fechaFin }) => {
+    const result = await pool.query(
+        `INSERT INTO evento_calendario (nombre, tipo, fecha_inicio, fecha_fin)
+         VALUES ($1, $2, $3, $4)
+         RETURNING id;`,
+        [nombre, tipo, fechaInicio, fechaFin]
+    );
     return await getEventoById(result.rows[0].id);
 };
 
-export const actualizarEvento = async (
-    id, 
-    titulo, 
-    descripcion = null, 
-    tipo, 
-    fechaInicio, 
-    fechaFin, 
-    lugar = null, 
-    creadorId, 
-    gradoId = null
-) => {
-    const query = `
-        UPDATE evento_calendario
-        SET titulo = $1,
-            descripcion = $2,
-            tipo = $3,
-            fecha_inicio = $4,
-            fecha_fin = $5,
-            lugar = $6,
-            creador_id = $7,
-            grado_id = $8
-        WHERE id = $9
-        RETURNING id;
-    `;
-    const values = [titulo, descripcion, tipo, fechaInicio, fechaFin, lugar, creadorId, gradoId, id];
-    const result = await pool.query(query, values);
-
+export const actualizarEvento = async (id, { nombre, tipo, fechaInicio, fechaFin }) => {
+    const result = await pool.query(
+        `UPDATE evento_calendario
+         SET nombre = $1, tipo = $2, fecha_inicio = $3, fecha_fin = $4
+         WHERE id = $5
+         RETURNING id;`,
+        [nombre, tipo, fechaInicio, fechaFin, id]
+    );
     if (result.rowCount === 0) return null;
     return await getEventoById(id);
 };
 
 export const eliminarEvento = async (id) => {
-    const query = `DELETE FROM evento_calendario WHERE id = $1 RETURNING *;`;
-    const result = await pool.query(query, [id]);
-
-    if (result.rowCount === 0) {
-        const error = new Error('Evento no encontrado');
-        error.statusCode = 404;
-        throw error;
-    }
-
-    return { message: 'Evento eliminado exitosamente', evento: result.rows[0] };
+    const result = await pool.query(
+        `DELETE FROM evento_calendario WHERE id = $1
+         RETURNING id AS evento_id, nombre, tipo;`,
+        [id]
+    );
+    return result.rows[0] || null;
 };

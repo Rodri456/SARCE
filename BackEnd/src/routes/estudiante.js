@@ -13,5 +13,8 @@ router.get('/:id', estudianteController.obtenerPorId);
 router.post('/', estudianteController.crear);
 router.put('/:id', estudianteController.actualizar);
 router.delete('/:id', estudianteController.eliminar);
+router.patch('/:id/estado', estudianteController.cambiarEstado);
+router.get('/docente/:docenteId/grado/:gradoId', estudianteController.obtenerPorDocenteYGrado);
+
 
 export default router;

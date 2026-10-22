@@ -36,6 +36,16 @@ export const getAllCalificaciones = async () => {
     return result.rows;
 };
 
+export const getCalificacionesByEstudianteId = async (estudianteId) => {
+    const query = `
+        ${BASE_SELECT}
+        WHERE c.estudiante_id = $1
+        ORDER BY m.nombre ASC;
+    `;
+    const result = await pool.query(query, [estudianteId]);
+    return result.rows;
+};
+
 // Buscar por ID exacto
 export const getCalificacionById = async (id) => {
     const query = `${BASE_SELECT} WHERE c.id = $1;`;
@@ -159,4 +169,14 @@ export const eliminarCalificacion = async (id) => {
     }
 
     return { message: 'Calificación eliminada exitosamente', calificacion: result.rows[0] };
+};
+
+export const getCalificacionesByDocenteId = async (docenteId) => {
+    const query = `
+        ${BASE_SELECT}
+        WHERE c.docente_id = $1
+        ORDER BY c.id ASC;
+    `;
+    const result = await pool.query(query, [docenteId]);
+    return result.rows;
 };

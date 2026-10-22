@@ -106,3 +106,24 @@ export const eliminar = async (req, res, next) => {
         next(err);
     }
 };
+
+export const getAsignacionesByDocenteId = async (docenteId) => {
+    const query = `
+        ${BASE_SELECT}
+        WHERE a.docente_id = $1
+        ORDER BY g.nombre ASC, m.nombre ASC;
+    `;
+    const result = await pool.query(query, [docenteId]);
+    return result.rows;
+};
+ 
+// ---- controllers/asignacionController.js  → agregar al final ----
+export const obtenerPorDocenteId = async (req, res, next) => {
+    const { id } = req.params;
+    try {
+        const result = await asignacionService.getAsignacionesByDocenteId(id);
+        res.json(result);
+    } catch (err) {
+        next(err);
+    }
+};

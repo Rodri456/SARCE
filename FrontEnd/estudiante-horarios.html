@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-rol="estudiante">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +9,9 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<!-- Protección de la página: debe cargarse en el head, antes del resto -->
+<script src="js/login.js"></script>
+<script src="js/sesion.js"></script>
 <link rel="stylesheet" href="css/estilos.css">
 </head>
 <body>
@@ -33,7 +36,7 @@
       <a href="estudiante-calendario.html" class="nav-link-sarce"><i class="bi bi-calendar-event"></i> Calendario institucional</a>
     </nav>
     <div class="salir-sidebar">
-      <a href="index.html"><i class="bi bi-box-arrow-left"></i> Cerrar sesión</a>
+      <a href="login.html"><i class="bi bi-box-arrow-left"></i> Cerrar sesión</a>
     </div>
   </aside>
 
@@ -47,8 +50,8 @@
         </div>
       </div>
       <div class="d-flex align-items-center gap-2">
-        <span class="d-none d-sm-inline small text-muted-sarce">María Fernanda López</span>
-        <span class="avatar-usuario">ML</span>
+        <span class="d-none d-sm-inline small text-muted-sarce">…</span>
+        <span class="avatar-usuario">…</span>
       </div>
     </header>
 
@@ -58,8 +61,8 @@
         <div class="d-flex align-items-center gap-2">
           <i class="bi bi-mortarboard text-azul fs-5"></i>
           <div>
-            <div class="fw-semibold" style="color:var(--sarce-azul-800);">9° Grado, Sección C</div>
-            <div class="small text-muted-sarce">II Trimestre 2026</div>
+            <div class="fw-semibold" style="color:var(--sarce-azul-800);">Cargando...</div>
+            <div class="small text-muted-sarce"></div>
           </div>
         </div>
         <button class="btn btn-sarce-outline btn-sm"><i class="bi bi-printer"></i> Imprimir horario</button>
@@ -85,48 +88,7 @@
               </thead>
               <tbody>
                 <tr>
-                  <td class="small text-muted-sarce">7:00 – 7:50</td>
-                  <td><div class="celda-clase">Matemática<small>Aula 12</small></div></td>
-                  <td><div class="celda-clase">Lenguaje<small>Aula 12</small></div></td>
-                  <td><div class="celda-clase">Ciencias<small>Lab. 2</small></div></td>
-                  <td><div class="celda-clase">Matemática<small>Aula 12</small></div></td>
-                  <td><div class="celda-clase">Inglés<small>Aula 12</small></div></td>
-                </tr>
-                <tr>
-                  <td class="small text-muted-sarce">7:50 – 8:40</td>
-                  <td><div class="celda-clase">Matemática<small>Aula 12</small></div></td>
-                  <td><div class="celda-clase">Lenguaje<small>Aula 12</small></div></td>
-                  <td><div class="celda-clase">Ciencias<small>Lab. 2</small></div></td>
-                  <td><div class="celda-clase">Sociales<small>Aula 12</small></div></td>
-                  <td><div class="celda-clase">Inglés<small>Aula 12</small></div></td>
-                </tr>
-                <tr>
-                  <td class="small text-muted-sarce">8:40 – 9:30</td>
-                  <td><div class="celda-clase">Informática y Robótica<small>Lab. Comp.</small></div></td>
-                  <td><div class="celda-clase">Educación Física<small>Cancha</small></div></td>
-                  <td><div class="celda-clase">Sociales<small>Aula 12</small></div></td>
-                  <td><div class="celda-clase">Lenguaje<small>Aula 12</small></div></td>
-                  <td><div class="celda-clase">Educación en la Fe<small>Aula 12</small></div></td>
-                </tr>
-                <tr>
-                  <td class="small text-muted-sarce">9:30 – 9:50</td>
-                  <td colspan="5"><div class="celda-clase libre">Recreo</div></td>
-                </tr>
-                <tr>
-                  <td class="small text-muted-sarce">9:50 – 10:40</td>
-                  <td><div class="celda-clase">Ciencias<small>Lab. 2</small></div></td>
-                  <td><div class="celda-clase">Matemática<small>Aula 12</small></div></td>
-                  <td><div class="celda-clase">Informática y Robótica<small>Lab. Comp.</small></div></td>
-                  <td><div class="celda-clase">Ciencias<small>Lab. 2</small></div></td>
-                  <td><div class="celda-clase">Sociales<small>Aula 12</small></div></td>
-                </tr>
-                <tr>
-                  <td class="small text-muted-sarce">10:40 – 11:30</td>
-                  <td><div class="celda-clase">Sociales<small>Aula 12</small></div></td>
-                  <td><div class="celda-clase">Educación en la Fe<small>Aula 12</small></div></td>
-                  <td><div class="celda-clase">Matemática<small>Aula 12</small></div></td>
-                  <td><div class="celda-clase">Educación Física<small>Cancha</small></div></td>
-                  <td><div class="celda-clase">Lenguaje<small>Aula 12</small></div></td>
+                  <td colspan="6" class="text-center text-muted-sarce py-4">Cargando horario...</td>
                 </tr>
               </tbody>
             </table>
@@ -141,6 +103,8 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="js/sarce.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="js/estudiante-horarios.js"></script>
 </body>
 </html>

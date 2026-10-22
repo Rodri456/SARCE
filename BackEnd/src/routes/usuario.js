@@ -3,6 +3,7 @@ import * as usuariosController from '../controllers/usuariosController.js';
 
 const router = Router();
 
+router.post('/login', usuariosController.login);
 router.get('/', usuariosController.obtenerTodos);
 router.get('/buscarPorCorreo/:correo', usuariosController.obtenerPorCorreo);
 router.get('/buscarPorNombre/:nombre', usuariosController.obtenerPorNombre);

@@ -14,5 +14,6 @@ router.delete('/:id', asignacionController.eliminar);
 router.get('/buscarPorDocente/:texto', asignacionController.obtenerPorDocente);
 router.get('/buscarPorMateria/:materia', asignacionController.obtenerPorMateria);
 router.get('/buscarPorGrado/:grado', asignacionController.obtenerPorGrado);
+router.get('/docente/:id', asignacionController.obtenerPorDocenteId);
 
 export default router;

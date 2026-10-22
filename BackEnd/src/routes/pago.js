@@ -17,5 +17,6 @@ router.get('/buscarPorEstudiante/:texto', pagoController.obtenerPorEstudiante);
 router.get('/buscarPorConcepto/:concepto', pagoController.obtenerPorConcepto);
 router.get('/buscarPorEstado/:estado', pagoController.obtenerPorEstado);
 router.get('/buscarPorGrado/:grado', pagoController.obtenerPorGrado);
+router.get('/estudiante/:id', pagoController.obtenerPorEstudianteId);
 
 export default router;

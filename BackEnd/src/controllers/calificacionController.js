@@ -9,6 +9,16 @@ export const obtenerTodas = async (req, res, next) => {
     }
 };
 
+export const obtenerPorEstudianteId = async (req, res, next) => {
+    const { id } = req.params;
+    try {
+        const result = await calificacionService.getCalificacionesByEstudianteId(id);
+        res.json(result);
+    } catch (err) {
+        next(err);
+    }
+};
+
 export const obtenerPorId = async (req, res, next) => {
     const { id } = req.params;
     try {
@@ -136,6 +146,16 @@ export const eliminar = async (req, res, next) => {
         const { id } = req.params;
         const result = await calificacionService.eliminarCalificacion(id);
         res.status(200).json(result);
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const obtenerPorDocenteId = async (req, res, next) => {
+    const { id } = req.params;
+    try {
+        const result = await calificacionService.getCalificacionesByDocenteId(id);
+        res.json(result);
     } catch (err) {
         next(err);
     }

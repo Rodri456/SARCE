@@ -276,3 +276,22 @@ export const eliminarEstudiante = async (id) => {
         client.release();
     }
 };
+
+// Cambiar solo el estado del perfil (activo / inactivo / retirado)
+export const cambiarEstadoPerfil = async (id, estadoPerfil) => {
+    const result = await pool.query(
+        'UPDATE estudiante SET estado_perfil = $1 WHERE usuario_id = $2 RETURNING usuario_id;',
+        [estadoPerfil, id]
+    );
+    if (result.rowCount === 0) return null;
+    return await getEstudianteById(id);
+};
+
+// ¿El docente tiene asignado ese grado?
+export const docenteImparteEnGrado = async (docenteId, gradoId) => {
+    const result = await pool.query(
+        'SELECT 1 FROM asignacion WHERE docente_id = $1 AND grado_id = $2 LIMIT 1;',
+        [docenteId, gradoId]
+    );
+    return result.rowCount > 0;
+};
