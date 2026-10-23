@@ -15,6 +15,6 @@ router.put('/:id', estudianteController.actualizar);
 router.delete('/:id', estudianteController.eliminar);
 router.patch('/:id/estado', estudianteController.cambiarEstado);
 router.get('/docente/:docenteId/grado/:gradoId', estudianteController.obtenerPorDocenteYGrado);
-
+router.patch('/:id/estado', estudianteController.cambiarEstado);
 
 export default router;
