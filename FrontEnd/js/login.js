@@ -4,7 +4,9 @@ const API_URL = 'http://localhost:3000';
 
 const DESTINOS = {
   estudiante: 'estudiante-notas.html',
-  docente: 'docente-calificaciones.html'
+  docente: 'docente-calificaciones.html',
+  admin: 'admin-usuarios.html',
+  administrador: 'admin-usuarios.html'
 };
 
 const form = document.getElementById('formLogin');
@@ -34,13 +36,22 @@ function ocultarError() {
 // Si ya hay sesión activa, redirigir directamente
 (function revisarSesion() {
   const raw = localStorage.getItem('sarce_usuario') || sessionStorage.getItem('sarce_usuario');
+  const token = localStorage.getItem('sarce_token') || sessionStorage.getItem('sarce_token');
   if (!raw) return;
+  if (!token) {
+    // Sesión antigua sin token: se descarta y se vuelve a iniciar sesión
+    localStorage.removeItem('sarce_usuario');
+    sessionStorage.removeItem('sarce_usuario');
+    return;
+  }
   try {
     const usuario = JSON.parse(raw);
     if (DESTINOS[usuario.rol]) window.location.href = DESTINOS[usuario.rol];
   } catch {
     localStorage.removeItem('sarce_usuario');
     sessionStorage.removeItem('sarce_usuario');
+    localStorage.removeItem('sarce_token');
+    sessionStorage.removeItem('sarce_token');
   }
 })();
 
@@ -88,14 +99,24 @@ form.addEventListener('submit', async (e) => {
     const usuario = data.usuario;
     const destino = DESTINOS[usuario.rol];
 
+    if (!data.token) {
+      mostrarError('El servidor no devolvió el token de sesión. Actualiza el backend.');
+      return;
+    }
+
     if (!destino) {
       mostrarError('Tu rol no tiene un panel disponible.');
       return;
     }
 
     // Guardar sesión
+    ['sarce_usuario', 'sarce_token'].forEach((clave) => {
+      localStorage.removeItem(clave);
+      sessionStorage.removeItem(clave);
+    });
     const almacenamiento = chkRecordarme.checked ? localStorage : sessionStorage;
     almacenamiento.setItem('sarce_usuario', JSON.stringify(usuario));
+    almacenamiento.setItem('sarce_token', data.token);
 
     window.location.href = destino;
   } catch (err) {
