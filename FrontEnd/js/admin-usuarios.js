@@ -17,8 +17,11 @@
 
   // ---------- Referencias al DOM ----------
   const main = document.querySelector('main.app-contenido');
-  const tabEstudiantes = document.getElementById('tabEstudiantes');
-  const tabDocentes = document.getElementById('tabDocentes');
+  const TABS = {
+    estudiantes: document.getElementById('tabEstudiantes'),
+    docentes: document.getElementById('tabDocentes'),
+    materias: document.getElementById('tabMaterias')
+  };
   const btnAgregar = document.getElementById('btnAgregar');
   const inpBuscar = document.getElementById('buscarUsuario');
   const colBuscar = document.getElementById('colBuscar');
@@ -28,22 +31,37 @@
   const contador = document.getElementById('contadorUsuarios');
   const thead = document.getElementById('theadUsuarios');
 
+  // Modal "Agregar" (estudiante, docente o materia)
   const modalAgregarEl = document.getElementById('modalAgregar');
   const modalAgregarTitulo = document.getElementById('modalAgregarTitulo');
   const formAgregar = document.getElementById('formAgregar');
   const addError = document.getElementById('addError');
+  const lblNombre = document.getElementById('lblNombre');
   const addNombre = document.getElementById('addNombre');
+  const grupoCorreo = document.getElementById('grupoCorreo');
   const addCorreo = document.getElementById('addCorreo');
+  const grupoContrasena = document.getElementById('grupoContrasena');
   const addContrasena = document.getElementById('addContrasena');
   const grupoGrado = document.getElementById('grupoGrado');
   const addGrado = document.getElementById('addGrado');
   const btnGuardar = document.getElementById('btnGuardarUsuario');
 
+  // Modal "Asignar docente"
+  const modalAsignarEl = document.getElementById('modalAsignar');
+  const formAsignar = document.getElementById('formAsignar');
+  const asignarMateria = document.getElementById('asignarMateria');
+  const asignarDocente = document.getElementById('asignarDocente');
+  const asignarGrado = document.getElementById('asignarGrado');
+  const asignarError = document.getElementById('asignarError');
+  const btnConfirmarAsignar = document.getElementById('btnConfirmarAsignar');
+
+  // Modal "Eliminar"
   const eliminarTipo = document.getElementById('eliminarTipo');
   const eliminarNombre = document.getElementById('eliminarNombre');
   const btnConfirmarEliminar = document.getElementById('btnConfirmarEliminar');
 
   const modalAgregar = bootstrap.Modal.getOrCreateInstance(modalAgregarEl);
+  const modalAsignar = bootstrap.Modal.getOrCreateInstance(modalAsignarEl);
 
   // Aviso (éxito / error)
   const alerta = document.createElement('div');
@@ -56,7 +74,7 @@
     clearTimeout(temporizador);
     alerta.className = `alert alert-${tipo} py-2 small`;
     alerta.textContent = texto;
-    if (tipo === 'success') temporizador = setTimeout(() => alerta.classList.add('d-none'), 5000);
+    if (tipo === 'success') temporizador = setTimeout(() => alerta.classList.add('d-none'), 6000);
   }
   const ocultarAviso = () => alerta.classList.add('d-none');
 
@@ -83,7 +101,7 @@
   // Mensajes de error de la base de datos → texto entendible
   function traducirError(mensaje, accion) {
     if (/duplicate key|already exists|unique/i.test(mensaje)) {
-      return 'Ya existe un usuario con ese correo electrónico.';
+      return 'Ya existe un registro igual (por ejemplo, un usuario con ese correo).';
     }
     if (/foreign key|referenced|still referenced/i.test(mensaje)) {
       return 'No se puede eliminar porque tiene registros asociados (calificaciones, pagos, horarios o asignaciones).';
@@ -95,18 +113,33 @@
   }
 
   // ---------- Estado ----------
-  let vista = 'estudiantes'; // 'estudiantes' | 'docentes'
+  let vista = 'estudiantes'; // 'estudiantes' | 'docentes' | 'materias'
   let estudiantes = [];
   let docentes = [];
+  let materias = [];
+  let asignaciones = [];
   let grados = [];
   let porEliminar = null;
+  let materiaAsignando = null;
 
-  const esEstudiantes = () => vista === 'estudiantes';
+  const ETIQUETAS = {
+    estudiantes: { singular: 'estudiante', plural: 'Estudiantes', icono: 'bi-people', buscar: 'Nombre o correo' },
+    docentes: { singular: 'docente', plural: 'Docentes', icono: 'bi-person-workspace', buscar: 'Nombre o correo' },
+    materias: { singular: 'materia', plural: 'Materias', icono: 'bi-journal-bookmark', buscar: 'Materia o docente' }
+  };
 
   async function cargarTodo() {
-    const [e, d, g] = await Promise.all([pedir('/estudiantes'), pedir('/docentes'), pedir('/grados')]);
-    estudiantes = e.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
-    docentes = d.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+    const [e, d, g, m, a] = await Promise.all([
+      pedir('/estudiantes'),
+      pedir('/docentes'),
+      pedir('/grados'),
+      pedir('/materias'),
+      pedir('/asignaciones')
+    ]);
+    estudiantes = e.sort((x, y) => x.nombre.localeCompare(y.nombre, 'es'));
+    docentes = d.sort((x, y) => x.nombre.localeCompare(y.nombre, 'es'));
+    materias = m.sort((x, y) => x.nombre.localeCompare(y.nombre, 'es'));
+    asignaciones = a;
     grados = g;
 
     selFiltroGrado.innerHTML =
@@ -120,7 +153,7 @@
   }
 
   const botonEliminar = (id, nombre) =>
-    `<button class="btn btn-outline-danger btn-sm" data-eliminar data-id="${esc(id)}" data-nombre="${esc(nombre)}" data-bs-toggle="modal" data-bs-target="#modalEliminar"><i class="bi bi-trash"></i> Eliminar</button>`;
+    `<button class="btn btn-outline-danger btn-sm" data-eliminar data-tipo="${vista}" data-id="${esc(id)}" data-nombre="${esc(nombre)}" data-bs-toggle="modal" data-bs-target="#modalEliminar"><i class="bi bi-trash"></i> Eliminar</button>`;
 
   function badgeEstado(estado) {
     const e = String(estado).toLowerCase();
@@ -136,11 +169,17 @@
     return isNaN(d) ? '—' : d.toLocaleDateString('es-SV', { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
+  // Etiqueta "Docente · Grado" con una x para quitar la asignación
+  const etiquetaAsignacion = (a, nombreMateria) => {
+    const detalle = `${a.docente_nombre} — ${nombreMateria} (${a.grado_nombre})`;
+    return `<span class="badge text-bg-light border fw-normal me-1 mb-1">${esc(a.docente_nombre)} · ${esc(a.grado_nombre)}<button type="button" class="btn btn-link btn-sm text-danger p-0 ms-2 align-baseline" aria-label="Quitar asignación" data-eliminar data-tipo="asignaciones" data-id="${esc(a.asignacion_id)}" data-nombre="${esc(detalle)}" data-bs-toggle="modal" data-bs-target="#modalEliminar"><i class="bi bi-x-lg"></i></button></span>`;
+  };
+
   function pintar() {
     const texto = normalizar(inpBuscar.value);
     const coincide = (u) => normalizar(u.nombre).includes(texto) || normalizar(u.correo).includes(texto);
 
-    if (esEstudiantes()) {
+    if (vista === 'estudiantes') {
       thead.innerHTML =
         '<tr><th>Estudiante</th><th>Correo</th><th>Grado</th><th>Estado</th><th class="text-end">Acción</th></tr>';
 
@@ -165,7 +204,7 @@
           </tr>`
         )
         .join('');
-    } else {
+    } else if (vista === 'docentes') {
       thead.innerHTML = '<tr><th>Docente</th><th>Correo</th><th>Registrado</th><th class="text-end">Acción</th></tr>';
 
       const filtrados = docentes.filter(coincide);
@@ -187,6 +226,34 @@
           </tr>`
         )
         .join('');
+    } else {
+      thead.innerHTML = '<tr><th>Materia</th><th>Docentes asignados</th><th class="text-end">Acción</th></tr>';
+
+      const deLaMateria = (m) => asignaciones.filter((a) => String(a.materia_id) === String(m.id));
+      const filtradas = materias.filter(
+        (m) => normalizar(m.nombre).includes(texto) || deLaMateria(m).some((a) => normalizar(a.docente_nombre).includes(texto))
+      );
+
+      contador.textContent =
+        filtradas.length === materias.length ? `${materias.length} materias` : `${filtradas.length} de ${materias.length} materias`;
+
+      if (!materias.length) return mensajeTabla('Aún no hay materias. Usa «Agregar materia» para crear la primera.', 3);
+      if (!filtradas.length) return mensajeTabla('Ninguna materia coincide con la búsqueda.', 3);
+
+      tbody.innerHTML = filtradas
+        .map((m) => {
+          const asignadas = deLaMateria(m);
+          const docentesHtml = asignadas.length
+            ? asignadas.map((a) => etiquetaAsignacion(a, m.nombre)).join('')
+            : '<span class="small text-muted-sarce">Sin docente asignado</span>';
+          return `
+          <tr>
+            <td>${esc(m.nombre)}</td>
+            <td>${docentesHtml}</td>
+            <td class="text-end"><button class="btn btn-sarce-outline btn-sm" data-asignar data-id="${esc(m.id)}" data-nombre="${esc(m.nombre)}"><i class="bi bi-link-45deg"></i> Asignar docente</button></td>
+          </tr>`;
+        })
+        .join('');
     }
   }
 
@@ -197,30 +264,41 @@
     inpBuscar.value = '';
     selFiltroGrado.value = '';
 
-    tabEstudiantes.className = `btn btn-sm ${esEstudiantes() ? 'btn-sarce' : 'btn-sarce-outline'}`;
-    tabDocentes.className = `btn btn-sm ${esEstudiantes() ? 'btn-sarce-outline' : 'btn-sarce'}`;
-    btnAgregar.innerHTML = `<i class="bi bi-plus-lg"></i> Agregar ${esEstudiantes() ? 'estudiante' : 'docente'}`;
-    tituloLista.innerHTML = `<i class="bi bi-people text-azul me-1"></i> ${esEstudiantes() ? 'Estudiantes' : 'Docentes'}`;
+    Object.entries(TABS).forEach(([clave, boton]) => {
+      boton.className = `btn btn-sm ${clave === vista ? 'btn-sarce' : 'btn-sarce-outline'}`;
+    });
 
-    colGrado.classList.toggle('d-none', !esEstudiantes());
-    colBuscar.className = esEstudiantes() ? 'col-12 col-md-8' : 'col-12';
+    const et = ETIQUETAS[vista];
+    btnAgregar.innerHTML = `<i class="bi bi-plus-lg"></i> Agregar ${et.singular}`;
+    tituloLista.innerHTML = `<i class="bi ${et.icono} text-azul me-1"></i> ${et.plural}`;
+    inpBuscar.placeholder = et.buscar;
+
+    colGrado.classList.toggle('d-none', vista !== 'estudiantes');
+    colBuscar.className = vista === 'estudiantes' ? 'col-12 col-md-8' : 'col-12';
 
     pintar();
   }
 
-  tabEstudiantes.addEventListener('click', () => cambiarVista('estudiantes'));
-  tabDocentes.addEventListener('click', () => cambiarVista('docentes'));
+  Object.entries(TABS).forEach(([clave, boton]) => boton.addEventListener('click', () => cambiarVista(clave)));
   inpBuscar.addEventListener('input', pintar);
   selFiltroGrado.addEventListener('change', pintar);
 
-  // ---------- Agregar ----------
+  // ---------- Agregar (estudiante / docente / materia) ----------
+  const opcionesGrados = () => grados.map((g) => `<option value="${esc(g.id)}">${esc(g.nombre)}</option>`).join('');
+
   btnAgregar.addEventListener('click', () => {
     formAgregar.reset();
     addError.classList.add('d-none');
 
-    modalAgregarTitulo.innerHTML = `<i class="bi bi-person-plus text-azul me-1"></i> Agregar ${esEstudiantes() ? 'estudiante' : 'docente'}`;
-    grupoGrado.classList.toggle('d-none', !esEstudiantes());
-    addGrado.innerHTML = grados.map((g) => `<option value="${esc(g.id)}">${esc(g.nombre)}</option>`).join('');
+    const esMateria = vista === 'materias';
+    const icono = esMateria ? 'bi-journal-plus' : 'bi-person-plus';
+    modalAgregarTitulo.innerHTML = `<i class="bi ${icono} text-azul me-1"></i> Agregar ${ETIQUETAS[vista].singular}`;
+    lblNombre.textContent = esMateria ? 'Nombre de la materia' : 'Nombre completo';
+
+    grupoCorreo.classList.toggle('d-none', esMateria);
+    grupoContrasena.classList.toggle('d-none', esMateria);
+    grupoGrado.classList.toggle('d-none', vista !== 'estudiantes');
+    addGrado.innerHTML = opcionesGrados();
 
     modalAgregar.show();
   });
@@ -238,34 +316,50 @@
     const correo = addCorreo.value.trim();
     const contrasena = addContrasena.value;
 
-    if (nombre.length < 3) return mostrarErrorFormulario('Escribe el nombre completo.');
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) return mostrarErrorFormulario('Escribe un correo electrónico válido.');
-    if (contrasena.length < MIN_CONTRASENA) {
-      return mostrarErrorFormulario(`La contraseña debe tener al menos ${MIN_CONTRASENA} caracteres.`);
-    }
-    if (esEstudiantes() && !addGrado.value) return mostrarErrorFormulario('Selecciona el grado del estudiante.');
+    // Validación según lo que se está agregando
+    if (vista === 'materias') {
+      if (nombre.length < 2) return mostrarErrorFormulario('Escribe el nombre de la materia.');
+      if (materias.some((m) => normalizar(m.nombre) === normalizar(nombre))) {
+        return mostrarErrorFormulario('Ya existe una materia con ese nombre.');
+      }
+    } else {
+      if (nombre.length < 3) return mostrarErrorFormulario('Escribe el nombre completo.');
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) return mostrarErrorFormulario('Escribe un correo electrónico válido.');
+      if (contrasena.length < MIN_CONTRASENA) {
+        return mostrarErrorFormulario(`La contraseña debe tener al menos ${MIN_CONTRASENA} caracteres.`);
+      }
+      if (vista === 'estudiantes' && !addGrado.value) return mostrarErrorFormulario('Selecciona el grado del estudiante.');
 
-    const yaExiste = [...estudiantes, ...docentes].some((u) => u.correo.toLowerCase() === correo.toLowerCase());
-    if (yaExiste) return mostrarErrorFormulario('Ya existe un usuario con ese correo electrónico.');
+      const yaExiste = [...estudiantes, ...docentes].some((u) => u.correo.toLowerCase() === correo.toLowerCase());
+      if (yaExiste) return mostrarErrorFormulario('Ya existe un usuario con ese correo electrónico.');
+    }
 
     const textoBoton = btnGuardar.textContent;
     btnGuardar.disabled = true;
     btnGuardar.textContent = 'Guardando...';
 
     try {
-      if (esEstudiantes()) {
+      if (vista === 'estudiantes') {
         await pedir(
           '/estudiantes',
           enviarJson('POST', { nombre, correo, contrasena, gradoId: Number(addGrado.value), estadoPerfil: 'activo' })
         );
-      } else {
+      } else if (vista === 'docentes') {
         await pedir('/docentes', enviarJson('POST', { nombre, correo, contrasena }));
+      } else {
+        await pedir('/materias', enviarJson('POST', { nombre }));
       }
 
       modalAgregar.hide();
       await cargarTodo();
       pintar();
-      aviso('success', `${esEstudiantes() ? 'Estudiante' : 'Docente'} «${nombre}» agregado correctamente.`);
+
+      aviso(
+        'success',
+        vista === 'materias'
+          ? `Materia «${nombre}» creada. Pulsa «Asignar docente» para vincularla con una maestra.`
+          : `${vista === 'estudiantes' ? 'Estudiante' : 'Docente'} «${nombre}» agregado correctamente.`
+      );
     } catch (err) {
       console.error(err);
       mostrarErrorFormulario(traducirError(err.message, 'agregar'));
@@ -275,13 +369,86 @@
     }
   });
 
-  // ---------- Eliminar ----------
+  // ---------- Asignar docente a una materia ----------
+  const mostrarErrorAsignar = (texto) => {
+    asignarError.textContent = texto;
+    asignarError.classList.remove('d-none');
+  };
+
+  tbody.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-asignar]');
+    if (!btn) return;
+
+    materiaAsignando = { id: btn.dataset.id, nombre: btn.dataset.nombre };
+    asignarMateria.textContent = materiaAsignando.nombre;
+    asignarError.classList.add('d-none');
+
+    asignarDocente.innerHTML = docentes
+      .map((d) => `<option value="${esc(d.docente_id)}">${esc(d.nombre)}</option>`)
+      .join('');
+    asignarGrado.innerHTML = opcionesGrados();
+
+    if (!docentes.length) mostrarErrorAsignar('Primero agrega un docente en la pestaña «Docentes».');
+    else if (!grados.length) mostrarErrorAsignar('No hay grados registrados.');
+
+    modalAsignar.show();
+  });
+
+  formAsignar.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    asignarError.classList.add('d-none');
+    if (!materiaAsignando) return;
+
+    if (!asignarDocente.value) return mostrarErrorAsignar('Selecciona un docente.');
+    if (!asignarGrado.value) return mostrarErrorAsignar('Selecciona un grado.');
+
+    const repetida = asignaciones.some(
+      (a) =>
+        String(a.materia_id) === String(materiaAsignando.id) &&
+        String(a.docente_id) === asignarDocente.value &&
+        String(a.grado_id) === asignarGrado.value
+    );
+    if (repetida) return mostrarErrorAsignar('Ese docente ya tiene asignada esta materia en ese grado.');
+
+    const nombreDocente = asignarDocente.selectedOptions[0].textContent;
+    const nombreGrado = asignarGrado.selectedOptions[0].textContent;
+    const textoBoton = btnConfirmarAsignar.textContent;
+    btnConfirmarAsignar.disabled = true;
+    btnConfirmarAsignar.textContent = 'Asignando...';
+
+    try {
+      await pedir(
+        '/asignaciones',
+        enviarJson('POST', {
+          docenteId: Number(asignarDocente.value),
+          materiaId: Number(materiaAsignando.id),
+          gradoId: Number(asignarGrado.value)
+        })
+      );
+
+      modalAsignar.hide();
+      await cargarTodo();
+      pintar();
+      aviso('success', `${nombreDocente} fue asignado(a) a «${materiaAsignando.nombre}» en ${nombreGrado}.`);
+    } catch (err) {
+      console.error(err);
+      mostrarErrorAsignar(traducirError(err.message, 'asignar'));
+    } finally {
+      btnConfirmarAsignar.disabled = false;
+      btnConfirmarAsignar.textContent = textoBoton;
+    }
+  });
+
+  // ---------- Eliminar (usuario o asignación) ----------
+  const RUTAS = { estudiantes: '/estudiantes', docentes: '/docentes', asignaciones: '/asignaciones' };
+  const TEXTO_TIPO = { estudiantes: 'al estudiante', docentes: 'al docente', asignaciones: 'la asignación' };
+
   tbody.addEventListener('click', (e) => {
     const btn = e.target.closest('[data-eliminar]');
     if (!btn) return;
 
-    porEliminar = { tipo: vista, id: btn.dataset.id, nombre: btn.dataset.nombre };
-    eliminarTipo.textContent = esEstudiantes() ? 'al estudiante' : 'al docente';
+    porEliminar = { tipo: btn.dataset.tipo, id: btn.dataset.id, nombre: btn.dataset.nombre };
+    eliminarTipo.textContent = TEXTO_TIPO[porEliminar.tipo] || 'el registro';
     eliminarNombre.textContent = porEliminar.nombre;
   });
 
@@ -292,10 +459,10 @@
     ocultarAviso();
 
     try {
-      await pedir(`/${tipo === 'estudiantes' ? 'estudiantes' : 'docentes'}/${id}`, { method: 'DELETE' });
+      await pedir(`${RUTAS[tipo]}/${id}`, { method: 'DELETE' });
       await cargarTodo();
       pintar();
-      aviso('success', `«${nombre}» fue eliminado.`);
+      aviso('success', tipo === 'asignaciones' ? `Asignación quitada: ${nombre}.` : `«${nombre}» fue eliminado.`);
     } catch (err) {
       console.error(err);
       aviso('danger', traducirError(err.message, 'eliminar'));
@@ -307,7 +474,7 @@
     await cargarTodo();
   } catch (err) {
     console.error(err);
-    mensajeTabla(`No se pudieron cargar los usuarios (${err.message}). Verifica que el backend esté corriendo en ${API_URL}.`, 5);
+    mensajeTabla(`No se pudieron cargar los datos (${err.message}). Verifica que el backend esté corriendo en ${API_URL}.`, 5);
     return;
   }
 

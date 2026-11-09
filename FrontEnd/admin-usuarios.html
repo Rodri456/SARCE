@@ -42,7 +42,7 @@
         <button class="btn-menu-movil"><i class="bi bi-list"></i></button>
         <div>
           <p class="titulo-vista">Gestión de usuarios</p>
-          <p class="miga-pan mb-0">Administrador / Estudiantes y docentes</p>
+          <p class="miga-pan mb-0">Administrador / Estudiantes, docentes y materias</p>
         </div>
       </div>
       <div class="d-flex align-items-center gap-2">
@@ -57,6 +57,7 @@
         <div class="d-flex gap-2">
           <button type="button" id="tabEstudiantes" class="btn btn-sarce btn-sm"><i class="bi bi-mortarboard"></i> Estudiantes</button>
           <button type="button" id="tabDocentes" class="btn btn-sarce-outline btn-sm"><i class="bi bi-person-workspace"></i> Docentes</button>
+          <button type="button" id="tabMaterias" class="btn btn-sarce-outline btn-sm"><i class="bi bi-journal-bookmark"></i> Materias</button>
         </div>
         <button type="button" id="btnAgregar" class="btn btn-sarce btn-sm"><i class="bi bi-plus-lg"></i> Agregar estudiante</button>
       </div>
@@ -120,14 +121,14 @@
         <div id="addError" class="alert alert-danger d-none py-2 small" role="alert"></div>
         <form id="formAgregar" novalidate>
           <div class="mb-3">
-            <label class="form-label small" for="addNombre">Nombre completo</label>
+            <label class="form-label small" for="addNombre" id="lblNombre">Nombre completo</label>
             <input type="text" class="form-control" id="addNombre" autocomplete="off" required>
           </div>
-          <div class="mb-3">
+          <div class="mb-3" id="grupoCorreo">
             <label class="form-label small" for="addCorreo">Correo electrónico</label>
             <input type="email" class="form-control" id="addCorreo" autocomplete="off" required>
           </div>
-          <div class="mb-3">
+          <div class="mb-3" id="grupoContrasena">
             <label class="form-label small" for="addContrasena">Contraseña inicial</label>
             <input type="password" class="form-control" id="addContrasena" autocomplete="new-password" required>
             <div class="form-text">Mínimo 6 caracteres. Se guarda cifrada.</div>
@@ -163,6 +164,36 @@
       <div class="modal-footer border-0 justify-content-center pb-4">
         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
         <button type="button" class="btn btn-outline-danger" id="btnConfirmarEliminar" data-bs-dismiss="modal">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: asignar un docente a una materia -->
+<div class="modal fade" id="modalAsignar" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-link-45deg text-azul me-1"></i> Asignar docente</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-3">Materia: <strong id="asignarMateria" style="color:var(--sarce-azul-800);">—</strong></p>
+        <div id="asignarError" class="alert alert-danger d-none py-2 small" role="alert"></div>
+        <form id="formAsignar" novalidate>
+          <div class="mb-3">
+            <label class="form-label small" for="asignarDocente">Docente</label>
+            <select class="form-select" id="asignarDocente"></select>
+          </div>
+          <div class="mb-1">
+            <label class="form-label small" for="asignarGrado">Grado en el que la impartirá</label>
+            <select class="form-select" id="asignarGrado"></select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-sarce" form="formAsignar" id="btnConfirmarAsignar">Asignar</button>
       </div>
     </div>
   </div>
